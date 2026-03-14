@@ -1,0 +1,1 @@
+Laravel makes it easy to get started, but shipping maintainable code at scale is a different challenge. This book bridges that gap - covering the patterns, architecture, and practices that separate quick prototypes from production-grade applications.
