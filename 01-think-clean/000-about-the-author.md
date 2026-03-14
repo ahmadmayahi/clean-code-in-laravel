@@ -11,5 +11,4 @@ You can find me at [mayahi.net](https://mayahi.net).
 <div style="display: flex; gap: 16px;">
   <a href="/books/clean-code-in-laravel/the-philosophy-of-simplicity"><img src="/images/books/clean-code-in-laravel.png" alt="Clean Code in Laravel" width="180"></a>
   <a href="/books/thinking-in-domains-in-laravel/preface"><img src="/images/books/thinking-in-domains-in-laravel.png" alt="Thinking in Domains in Laravel" width="180"></a>
-  <a href="/books/event-sourcing-in-laravel/preface"><img src="/images/books/event-sourcing-in-laravel.png" alt="Event Sourcing in Laravel" width="180"></a>
 </div>
