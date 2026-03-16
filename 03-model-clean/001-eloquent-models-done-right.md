@@ -821,8 +821,7 @@ This is not a Laravel requirement — it is a readability convention. When every
 - [Effective Eloquent](https://laravel-news.com/effective-eloquent) — Laravel News
 - [Dedicated Query Builders in Laravel](https://timacdonald.me/dedicated-eloquent-model-query-builders/) — Tim MacDonald
 - [Giving Collections a Voice](https://timacdonald.me/giving-collections-a-voice/) — Tim MacDonald
-- [Laravel Beyond CRUD: Actions](https://stitcher.io/blog/laravel-beyond-crud-03-actions) — Brent Roose
-- [Laravel Beyond CRUD: Models](https://stitcher.io/blog/laravel-beyond-crud-04-models) — Brent Roose
+- [Laravel Beyond CRUD](https://spatie.be/products/laravel-beyond-crud) — Brent Roose
 - [Eloquent Performance Patterns](https://eloquent-course.reinink.ca/) — Jonathan Reinink
 - [20 Tips to Optimize Your Eloquent Queries](https://martinjoo.dev/35-eloquent-recipes) — Martin Joo
 - [MySQL Generated Columns in Laravel](/blog/mysql-generated-columns-in-laravel) — Ahmad Mayahi

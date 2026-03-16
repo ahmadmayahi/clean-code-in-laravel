@@ -81,7 +81,7 @@ Not every dependency is a burden. Some packages solve problems so well, so compl
 
 These packages belong in your `require-dev` section. They make development faster and debugging easier, but they never touch production.
 
-**[Laravel Debugbar](https://github.com/barryvdh/laravel-debugbar)** (`barryvdh/laravel-debugbar`) is the single most useful development tool in the Laravel ecosystem. It adds a toolbar to your browser that shows every database query, every view rendered, every cache hit, every mail sent, and how long each part of the request took. It catches N+1 queries before they reach production. If you are not using it, you are debugging blind.
+**[Laravel Debugbar](https://github.com/fruitcake/laravel-debugbar)** (`fruitcake/laravel-debugbar`) is the single most useful development tool in the Laravel ecosystem. It adds a toolbar to your browser that shows every database query, every view rendered, every cache hit, every mail sent, and how long each part of the request took. It catches N+1 queries before they reach production. If you are not using it, you are debugging blind.
 
 **[Larastan](https://github.com/larastan/larastan)** (`larastan/larastan`) brings static analysis to Laravel. It is a [PHPStan](https://phpstan.org/) extension that understands Eloquent, Facades, collections, and the service container. It catches type errors, undefined methods, and incorrect return types without running your code. Pair it with the [Code Quality and Automation](/books/clean-code-in-laravel/code-quality-and-automation) tools from earlier in this book to catch bugs before they are committed.
 
@@ -187,7 +187,7 @@ Installing a package is not a one-time decision. Dependencies need ongoing care:
 - Every package is a dependency. Every dependency is a bet on someone else's code, maintenance, and priorities. Make those bets deliberately.
 - Before installing a package, ask: does Laravel already solve this? Can I build it in a reasonable amount of time? Is this package well-maintained?
 - Simple integrations — API calls, basic string operations, straightforward data transformations — often do not need a package. Laravel's HTTP client, collection methods, and helper functions cover more ground than you think.
-- Some packages are worth the dependency. [Debugbar](https://github.com/barryvdh/laravel-debugbar) for development visibility, [Larastan](https://github.com/larastan/larastan) for static analysis, [Laravel Data](https://spatie.be/docs/laravel-data) for typed data objects, [Laravel Permission](https://github.com/spatie/laravel-permission) for access control, [Laravel Backup](https://github.com/spatie/laravel-backup) for disaster recovery, and [Horizon](https://laravel.com/docs/horizon) for queue monitoring have all earned their place.
+- Some packages are worth the dependency. [Debugbar](https://github.com/fruitcake/laravel-debugbar) for development visibility, [Larastan](https://github.com/larastan/larastan) for static analysis, [Laravel Data](https://spatie.be/docs/laravel-data) for typed data objects, [Laravel Permission](https://github.com/spatie/laravel-permission) for access control, [Laravel Backup](https://github.com/spatie/laravel-backup) for disaster recovery, and [Horizon](https://laravel.com/docs/horizon) for queue monitoring have all earned their place.
 - Evaluate packages rigorously: check maintenance activity, read the source code, verify the test suite exists, and consider the bus factor.
 - Build your own when the integration is simple, the package does too much, or the feature is core to your business logic.
 - Maintain your dependencies actively. Run `composer outdated` regularly, update in isolation, and remove packages you no longer use.
@@ -197,7 +197,7 @@ Installing a package is not a one-time decision. Dependencies need ongoing care:
 - [Composer Documentation](https://getcomposer.org/doc/) — Composer
 - [Laravel HTTP Client](https://laravel.com/docs/http-client) — Laravel Documentation
 - [Spatie Open Source](https://spatie.be/open-source) — Spatie
-- [Laravel Debugbar](https://github.com/barryvdh/laravel-debugbar) — Barry vd. Heuvel
+- [Laravel Debugbar](https://github.com/fruitcake/laravel-debugbar) — Fruitcake
 - [Larastan](https://github.com/larastan/larastan) — Larastan
 - [IDE Helper](https://github.com/barryvdh/laravel-ide-helper) — Barry vd. Heuvel
 - [Laravel Data](https://spatie.be/docs/laravel-data) — Spatie

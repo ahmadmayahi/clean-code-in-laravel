@@ -478,7 +478,6 @@ Use the pipe operator for quick transformations — formatting strings, chaining
 
 ## References
 
-- [Understanding Laravel Pipelines](https://jeffochoa.me/understanding-laravel-pipelines) — Jeff Ochoa
 - [Laravel: The Hidden Pipeline (4-part series)](https://medium.com/swlh/laravel-the-hidden-pipeline-part-1-a4ae91fc55a4) — Italo Baeza Cabrera
 - [Easy Query Filters with Laravel Pipelines](https://codecourse.com/courses/easy-query-filters-with-laravel-pipelines) — Codecourse
 - [How To Use Laravel Pipelines To Implement More Advanced Filters](https://martinjoo.dev/how-to-use-laravel-pipelines-to-implement-more-advanced-filters) — Martin Joo

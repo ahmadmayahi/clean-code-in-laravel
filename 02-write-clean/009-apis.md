@@ -303,6 +303,5 @@ Each version has its own controllers and resources. When v2 needs a different re
 - [Sorting](https://spatie.be/docs/laravel-query-builder/v6/features/sorting) — Spatie Query Builder Documentation
 - [Including Relationships](https://spatie.be/docs/laravel-query-builder/v6/features/including-relationships) — Spatie Query Builder Documentation
 - [Build an API with Laravel Resources](https://laravel-news.com/build-an-api-with-laravel-resources) — Laravel News
-- [Effective API Resource Responses in Laravel](https://martinjoo.dev/laravel-api-resources) — Martin Joo
 - [API Versioning in Laravel](https://laravel-news.com/api-versioning-in-laravel) — Laravel News
 - [Best Practices for Designing a Pragmatic RESTful API](https://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api) — Vinay Sahni

@@ -47,7 +47,7 @@ The best practice is to run Pint automatically. Add it to your CI pipeline, your
 
 Do not spend time debating which coding style to follow. Do not schedule meetings about brace placement, ternary usage, or whether to use string interpolation. These discussions burn hours and produce no business value.
 
-Instead, adopt the [Spatie Laravel & PHP guidelines](https://spatie.be/guidelines/laravel-php) as your non-negotiable standard. Spatie has been building and maintaining Laravel packages for years — their guidelines are battle-tested, comprehensive, and widely respected in the Laravel community. They cover everything from early returns and ternary usage to validation syntax, string formatting, and class structure.
+Instead, adopt the [Spatie Laravel & PHP guidelines](https://spatie.be/guidelines/laravel) as your non-negotiable standard. Spatie has been building and maintaining Laravel packages for years — their guidelines are battle-tested, comprehensive, and widely respected in the Laravel community. They cover everything from early returns and ternary usage to validation syntax, string formatting, and class structure.
 
 Treat these guidelines the same way you treat your code formatter: configure once, follow always. When a new team member joins, point them to the guidelines. When a pull request debate starts about style, point to the guidelines. The answer is already written — there is nothing left to discuss.
 
@@ -93,7 +93,7 @@ Laravel itself does not use `declare(strict_types=1)` — the framework is desig
 
 If your team does decide to use it, two things matter. First, be consistent — apply it across all your application files rather than mixing strict and non-strict files, which can lead to confusing behavior at the boundaries. Second, if you are adding it to an existing codebase, introduce it gradually — file by file, with tests covering each change — rather than turning it on everywhere at once.
 
-For more context, see the [PHP documentation on strict typing](https://www.php.net/manual/en/language.types.declarations.php#language.types.declarations.strict) and the [Spatie guidelines](https://spatie.be/guidelines/laravel-php#content-typed-properties).
+For more context, see the [PHP documentation on strict typing](https://www.php.net/manual/en/language.types.declarations.php#language.types.declarations.strict) and the [Spatie guidelines](https://spatie.be/guidelines/laravel#content-typed-properties).
 
 ## Static Analysis
 
@@ -447,7 +447,7 @@ With these tools in place, every chapter that follows will produce code that is 
 ## Summary
 
 - **Code style is a foundation, not a finishing touch.** Settle formatting debates once with [Laravel Pint](https://laravel.com/docs/pint), then automate it so nobody thinks about it again.
-- **Adopt the [Spatie guidelines](https://spatie.be/guidelines/laravel-php) as your non-negotiable coding style.** Do not waste time in meetings debating style — the answers are already written.
+- **Adopt the [Spatie guidelines](https://spatie.be/guidelines/laravel) as your non-negotiable coding style.** Do not waste time in meetings debating style — the answers are already written.
 - **Strict types are optional.** Laravel does not use them. If your team adopts them, be consistent and introduce them gradually.
 - **Static analysis catches bugs without running code.** [PHPStan](https://phpstan.org/) with [Larastan](https://github.com/larastan/larastan) understands Laravel's magic and finds problems your tests might miss. Start at a low level and work your way up.
 - **Automate refactoring with [Rector](https://getrector.com/).** It rewrites your code to use modern PHP and Laravel patterns. Use [Laravel Shift](https://laravelshift.com/) for full version upgrades.

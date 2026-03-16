@@ -278,7 +278,7 @@ Route::get('/users/{user}/orders', [UserOrderController::class, 'index'])
     ->name('users.orders.index');
 ```
 
-When a route name has multiple words, there is no single official convention. Some teams use camelCase, others use kebab-case. [Spatie's guidelines](https://spatie.be/guidelines/laravel-php#content-routing) recommend camelCase:
+When a route name has multiple words, there is no single official convention. Some teams use camelCase, others use kebab-case. [Spatie's guidelines](https://spatie.be/guidelines/laravel#content-routing) recommend camelCase:
 
 ```php
 // camelCase (Spatie convention)
@@ -424,7 +424,7 @@ Events use past tense because they describe something that already happened. Lis
 
 ## Enums
 
-[Enums](https://www.php.net/manual/en/language.enumerations.php) use singular PascalCase, and their cases use PascalCase as well. Laravel has [built-in support](https://laravel.com/docs/eloquent#casting) for casting model attributes to enums:
+[Enums](https://www.php.net/manual/en/language.enumerations.php) use singular PascalCase, and their cases use PascalCase as well. Laravel has [built-in support](https://laravel.com/docs/eloquent-mutators#attribute-casting) for casting model attributes to enums:
 
 ```php
 enum OrderStatus: string

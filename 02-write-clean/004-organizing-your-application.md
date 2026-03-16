@@ -660,7 +660,7 @@ Throughout the book, we add [Form Requests](/books/clean-code-in-laravel/form-re
 
 ## References
 
-- [Domain Oriented Laravel](https://stitcher.io/blog/laravel-beyond-crud-01-domain-oriented-laravel) — Brent Roose
+- [Laravel Beyond CRUD](https://spatie.be/products/laravel-beyond-crud) — Brent Roose
 - [Conciliating Laravel and DDD](https://lorisleiva.com/conciliating-laravel-and-ddd) — Loris Leiva
 - [Service Pattern in Laravel: Why It Is Meaningless](https://nabilhassen.com/laravel-service-pattern-issues) — Nabil Hassen
 - [Working with Third Party Services in Laravel](https://laravel-news.com/working-with-third-party-services-in-laravel) — Laravel News

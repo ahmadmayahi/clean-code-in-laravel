@@ -735,6 +735,5 @@ For a deeper look at when enums are enough and when to upgrade to the state patt
 - [Eloquent: Mutators & Casting — Custom Casts](https://laravel.com/docs/eloquent-mutators#custom-casts) — Laravel Documentation
 - [spatie/laravel-model-states](https://github.com/spatie/laravel-model-states) — Spatie, GitHub
 - [Model States Documentation](https://spatie.be/docs/laravel-model-states) — Spatie
-- [Using PHP Enums in Laravel](https://laravel-news.com/php-enums-in-laravel) — Laravel News
-- [Value Objects in PHP](https://martinjoo.dev/value-objects-in-php) — Martin Joo
+- [PHP Enumerations](https://www.php.net/manual/en/language.enumerations.php) — PHP Documentation
 - [States, Transitions, and Enums](/books/thinking-in-domains-in-laravel/states-transitions-and-enums) — Thinking in Domains in Laravel

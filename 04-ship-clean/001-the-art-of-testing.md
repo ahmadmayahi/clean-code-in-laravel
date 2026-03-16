@@ -773,7 +773,6 @@ The `--compact` flag gives you a condensed output that shows just the results. U
 - [Eloquent Factories](https://laravel.com/docs/eloquent-factories) — Laravel Documentation
 - [Testing Tips for Laravel](https://www.youtube.com/watch?v=vej0XCjBBMo) — Nuno Maduro, Laracon EU 2024
 - [Write Tests. Not Too Many. Mostly Integration.](https://kentcdodds.com/blog/write-tests) — Kent C. Dodds
-- [Test Desiderata](https://kentbeck.github.io/TestDesiderata/) — Kent Beck
-- [Using Test Doubles Isn't Testing the Implementation](https://adamwathan.me/2016/11/22/using-test-doubles-isnt-testing-the-implementation/) — Adam Wathan
+- [Test Desiderata](https://testdesiderata.com/) — Kent Beck
 - [The Practical Test Pyramid](https://martinfowler.com/articles/practical-test-pyramid.html) — Martin Fowler
 - [Mockery Documentation](https://docs.mockery.io/) — Mockery

@@ -1013,7 +1013,7 @@ Avoid mutable static state in classes used by Jobs, or clear it explicitly. Bett
 
 - [Queues](https://laravel.com/docs/queues) — Laravel Documentation
 - [Horizon](https://laravel.com/docs/horizon) — Laravel Documentation
-- [Laravel Queues in Action](https://learn-laravel-queues.com/) — Mohamed Said
+- [Laravel Queues in Action](https://themsaid.com/laravel-queues-in-action) — Mohamed Said
 - [Job Batching in Laravel: How It Works](https://themsaid.com/queue-job-batching-in-laravel-how-it-works) — Mohamed Said
 - [How to Group Queued Jobs Using Laravel's Batch Class](https://freek.dev/1734-how-to-group-queued-jobs-using-laravel-8s-new-batch-class) — Freek Van der Herten
 - [A Job Middleware to Rate Limit Jobs](https://freek.dev/1475-a-job-middleware-to-rate-limit-jobs) — Freek Van der Herten

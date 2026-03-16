@@ -852,13 +852,13 @@ Queue::looping(function (): void {
 - [Pulse](https://laravel.com/docs/pulse) — Laravel Documentation
 - [Deployment](https://laravel.com/docs/deployment) — Laravel Documentation
 - [Supervisor Documentation](http://supervisord.org/) — Supervisor
-- [Laravel Queues in Action](https://learn-laravel-queues.com/) — Mohamed Said
+- [Laravel Queues in Action](https://themsaid.com/laravel-queues-in-action) — Mohamed Said
 - [A Deep Dive Into Laravel Queues](https://www.honeybadger.io/blog/laravel-queues-deep-dive/) — Honeybadger
 - [Laravel Queues Under the Hood](https://wendelladriel.com/blog/laravel-queues-under-the-hood) — Wendell Adriel
 - [Queues and Workers in Production](https://martinjoo.dev/laravel-queues-and-workers-in-production) — Martin Joo
 - [Laravel Jobs and Queues 101](https://laravel-news.com/laravel-jobs-and-queues-101) — Laravel News
-- [Redis Lists](https://redis.io/docs/data-types/lists/) — Redis Documentation
-- [Redis Sorted Sets](https://redis.io/docs/data-types/sorted-sets/) — Redis Documentation
+- [Redis Lists](https://redis.io/docs/latest/develop/data-types/lists/) — Redis Documentation
+- [Redis Sorted Sets](https://redis.io/docs/latest/develop/data-types/sorted-sets/) — Redis Documentation
 - [BLPOP Command](https://redis.io/commands/blpop/) — Redis Documentation
 - [PHP `serialize()` Function](https://www.php.net/manual/en/function.serialize.php) — PHP Documentation
 - [PHP `unserialize()` Function](https://www.php.net/manual/en/function.unserialize.php) — PHP Documentation

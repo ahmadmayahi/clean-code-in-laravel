@@ -1,6 +1,6 @@
 A webhook is a simple idea: when something happens in one application, it sends an HTTP request to another application to let it know. No polling, no cron jobs, no checking every five minutes. Just a direct notification the moment something occurs.
 
-Laravel does not ship with a built-in webhook system, but Spatie provides two packages that handle both sides of the equation cleanly: [`spatie/laravel-webhook-client`](https://spatie.be/docs/laravel-webhook-client) for receiving webhooks and [`spatie/laravel-webhook-server`](https://spatie.be/docs/laravel-webhook-server) for sending them. In this chapter, we will build both sides using patterns that keep your code clean, secure, and testable.
+Laravel does not ship with a built-in webhook system, but Spatie provides two packages that handle both sides of the equation cleanly: [`spatie/laravel-webhook-client`](https://github.com/spatie/laravel-webhook-client) for receiving webhooks and [`spatie/laravel-webhook-server`](https://github.com/spatie/laravel-webhook-server) for sending them. In this chapter, we will build both sides using patterns that keep your code clean, secure, and testable.
 
 ## Why Webhooks Matter
 
@@ -254,7 +254,7 @@ class HandlePaymentSucceeded
 
 Everything above covers receiving webhooks from external services. But what about the other direction? When your application is the source of events — an order ships, a user upgrades, a report completes — other applications need to know. You could expose a polling API, but that puts the burden on every consumer to check repeatedly. Webhooks invert this: your application pushes notifications the moment something happens.
 
-[`spatie/laravel-webhook-server`](https://spatie.be/docs/laravel-webhook-server) handles the sending side — payload signing, queued delivery, retries with backoff, and event logging.
+[`spatie/laravel-webhook-server`](https://github.com/spatie/laravel-webhook-server) handles the sending side — payload signing, queued delivery, retries with backoff, and event logging.
 
 ### Installation
 
@@ -449,13 +449,13 @@ it('ignores unsubscribed event types', function (): void {
 ## Summary
 
 - A webhook is an HTTP request sent from one application to another the moment something happens — no polling, no cron jobs. Your application needs to handle both receiving webhooks from external services and sending them to partners.
-- [`spatie/laravel-webhook-client`](https://spatie.be/docs/laravel-webhook-client) provides a structured approach to receiving webhooks: route registration, signature verification, event filtering through webhook profiles, and queued processing.
+- [`spatie/laravel-webhook-client`](https://github.com/spatie/laravel-webhook-client) provides a structured approach to receiving webhooks: route registration, signature verification, event filtering through webhook profiles, and queued processing.
 - Always verify webhook signatures. An unverified webhook is an open door — any attacker who knows your endpoint can trigger actions in your application.
 - Use webhook profiles to filter irrelevant events before they reach the queue. Only store and process events your application actually cares about.
 - Always process webhooks asynchronously in queued [jobs](/books/clean-code-in-laravel/jobs). External services expect a fast response and will retry on timeout, which can create duplicate processing.
 - Make webhook processing idempotent. Check for existing records before creating new ones, because senders will retry and your application must handle the same event multiple times without side effects.
 - The processing job should act as a router, delegating to [Action](/books/clean-code-in-laravel/actions) classes for business logic. Each Action is independently testable.
-- [`spatie/laravel-webhook-server`](https://spatie.be/docs/laravel-webhook-server) handles the sending side — payload signing, queued delivery, and retries with backoff. Wrap sending logic in a service to keep payloads and configuration consistent.
+- [`spatie/laravel-webhook-server`](https://github.com/spatie/laravel-webhook-server) handles the sending side — payload signing, queued delivery, and retries with backoff. Wrap sending logic in a service to keep payloads and configuration consistent.
 - Listen for webhook delivery events (`WebhookCallSucceededEvent`, `FinalWebhookCallFailedEvent`) to monitor delivery health and alert on permanent failures.
 - Test the full webhook chain: signature validation rejects forged requests, profiles filter irrelevant events, and the processing job delegates to the correct Action.
 
@@ -463,10 +463,6 @@ it('ignores unsubscribed event types', function (): void {
 
 - [spatie/laravel-webhook-client](https://github.com/spatie/laravel-webhook-client) — Spatie, GitHub
 - [spatie/laravel-webhook-server](https://github.com/spatie/laravel-webhook-server) — Spatie, GitHub
-- [Laravel Webhook Client Documentation](https://spatie.be/docs/laravel-webhook-client/v3/introduction) — Spatie Documentation
-- [Laravel Webhook Server Documentation](https://spatie.be/docs/laravel-webhook-server/v3/introduction) — Spatie Documentation
-- [Handling Webhooks in a Laravel Application](https://freek.dev/1542-handling-webhooks-in-a-laravel-application) — Freek Van der Herten
-- [Sending Webhooks with Laravel](https://freek.dev/1566-sending-webhooks-from-a-laravel-application) — Freek Van der Herten
 - [Queues](https://laravel.com/docs/queues) — Laravel Documentation
 - [Stripe Webhooks](https://docs.stripe.com/webhooks) — Stripe Documentation
 - [Best Practices for Using Webhooks](https://docs.stripe.com/webhooks/best-practices) — Stripe Documentation

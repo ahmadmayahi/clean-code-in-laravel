@@ -618,6 +618,6 @@ For a domain-oriented take on states — including transition classes, states wi
 - [Model States Documentation](https://spatie.be/docs/laravel-model-states) — Spatie
 - [State Pattern](https://refactoring.guru/design-patterns/state) — Refactoring Guru
 - [State Pattern in PHP](https://refactoring.guru/design-patterns/state/php/example) — Refactoring Guru
-- [Modeling States and Transitions in Laravel](https://freek.dev/1686-a-package-to-work-with-model-states-in-laravel) — Freek Van der Herten
+- [Laravel Model States](https://github.com/spatie/laravel-model-states) — Spatie
 - [States, Transitions, and Enums](/books/thinking-in-domains-in-laravel/states-transitions-and-enums) — Thinking in Domains in Laravel
 - [Enums, Value Objects, and Type Safety](/books/clean-code-in-laravel/enums-value-objects-and-type-safety) — Clean Code in Laravel
