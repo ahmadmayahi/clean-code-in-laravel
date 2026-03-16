@@ -87,6 +87,14 @@ Laravel automatically wraps the collection in a `data` key and includes paginati
 }
 ```
 
+### The Trade-Off: Magic Properties
+
+API Resources are a significant improvement over returning raw models, but they carry a trade-off worth understanding. Resources extend `JsonResource`, which uses the same `__get()` magic as Eloquent. Inside a resource's `toArray()`, `$this->tyypoedProperty` silently returns `null` instead of throwing an error. A misspelled field name in your resource class produces a `null` in your API response, and nothing warns you — no exception, no static analysis error, no test failure unless you explicitly assert against `null` values.
+
+This is the same class of problem that makes Eloquent models difficult to work with at scale: magic property access trades compile-time safety for runtime convenience. For most applications, API Resources are the pragmatic choice — they integrate cleanly with Laravel's pagination and response system, and the `whenLoaded()` helper is genuinely useful.
+
+But if your API is large or consumed by external teams, consider using a [DTO](/books/clean-code-in-laravel/data-transfer-objects) library instead. A DTO with typed properties will throw an error when you access a property that does not exist. Controllers can return DTOs and accept them as arguments, and the type system catches mistakes that magic properties silently swallow. Libraries like [spatie/laravel-data](https://spatie.be/docs/laravel-data) can act as both DTOs and API responses, giving you the transformation layer of a resource without the magic property footgun.
+
 ## Flexible Filtering and Sorting
 
 API consumers need flexibility. A mobile app wants orders sorted by date. A dashboard wants them filtered by status. An admin panel needs both, plus a search on customer name. Handling this manually means a growing chain of conditionals in your controller:
@@ -276,7 +284,7 @@ Each version has its own controllers and resources. When v2 needs a different re
 ## Summary
 
 - An API is a contract. Every response — success or error — should follow a predictable, consistent shape that consumers can rely on without reading your source code.
-- Never return Eloquent models directly from API endpoints. Use [API Resources](https://laravel.com/docs/eloquent-resources) to define exactly which fields to expose, how to format them, and which relationships to include. This decouples your API contract from your database schema.
+- Never return Eloquent models directly from API endpoints. Use [API Resources](https://laravel.com/docs/eloquent-resources) or [DTOs](/books/clean-code-in-laravel/data-transfer-objects) to define exactly which fields to expose, how to format them, and which relationships to include. This decouples your API contract from your database schema. Resources integrate well with Laravel's pagination, but their magic property access means typos silently return `null`. For larger APIs, a typed DTO library like [spatie/laravel-data](https://spatie.be/docs/laravel-data) catches these mistakes at development time.
 - Use `whenLoaded()` in resources to include relationships only when they were eager-loaded, preventing [N+1 queries](/books/clean-code-in-laravel/database-best-practices).
 - Always paginate list endpoints. Returning unbounded collections is a performance and security risk.
 - [`spatie/laravel-query-builder`](https://spatie.be/docs/laravel-query-builder) provides declarative filtering, sorting, and relationship inclusion. Consumers get flexibility, but you control exactly which parameters are allowed — unauthorized parameters are silently ignored.

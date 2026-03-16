@@ -297,7 +297,7 @@ $order->state->transitionTo(DeliveredOrderState::class);
 // Because: Pending → Delivered is not an allowed transition
 ```
 
-This is the key difference from enums. With an enum, invalid transitions fail silently or require manual enforcement. With the State Pattern, they are structurally impossible.
+This is the key difference from bare enums without transition logic. An enum alone does not enforce transition rules — you can set any value directly. With the State Pattern, invalid transitions throw an exception automatically.
 
 ### Transitions with Side Effects
 
@@ -507,6 +507,67 @@ it('only allows editing on pending orders', function (string $stateClass, bool $
 ]);
 ```
 
+## Enums Can Do More Than You Think
+
+The State Pattern as shown above predates PHP enums. Now that enums exist, you can implement transition rules and state-specific behavior directly on the enum without creating a class per state:
+
+```php
+enum OrderStatus: string
+{
+    case Pending = 'pending';
+    case Paid = 'paid';
+    case Shipped = 'shipped';
+    case Delivered = 'delivered';
+    case Cancelled = 'cancelled';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Pending => 'Pending Payment',
+            self::Paid => 'Paid',
+            self::Shipped => 'Shipped',
+            self::Delivered => 'Delivered',
+            self::Cancelled => 'Cancelled',
+        };
+    }
+
+    public function canTransitionTo(self $target): bool
+    {
+        return in_array($target, match ($this) {
+            self::Pending => [self::Paid, self::Cancelled],
+            self::Paid => [self::Shipped, self::Cancelled],
+            self::Shipped => [self::Delivered],
+            self::Delivered, self::Cancelled => [],
+        }, true);
+    }
+
+    public function canBeEdited(): bool
+    {
+        return $this === self::Pending;
+    }
+
+    public function canBeCancelled(): bool
+    {
+        return in_array($this, [self::Pending, self::Paid], true);
+    }
+
+    public function transitionTo(self $target): self
+    {
+        if (! $this->canTransitionTo($target)) {
+            throw new InvalidArgumentException(
+                "Cannot transition from {$this->value} to {$target->value}",
+            );
+        }
+
+        return $target;
+    }
+}
+```
+
+This gives you transition rules, state-specific behavior, and validation — all in a single file. The full State Pattern with separate classes gives you one additional thing: parameter type narrowing. You can write a method that only accepts a `PendingOrderState`, which the enum approach cannot express. But at the model level, this type narrowing is rarely worth the cost of maintaining five or six extra classes that each contain a `label()` and `color()` method.
+
+The class-per-state approach earns its keep in two specific scenarios: when transitions carry side effects (sending emails, updating timestamps) that justify a dedicated Transition class, and when you need polymorphic behavior that genuinely differs per state beyond simple return values. If your states are mostly about labels, colors, and "can I do X?" checks, the enum does the same job with less ceremony.
+
 ## When to Use What
 
 Choosing between strings, enums, and the State Pattern depends on the complexity of your status management:
@@ -516,19 +577,22 @@ Choosing between strings, enums, and the State Pattern depends on the complexity
 | Simple flag (active/inactive)  | Boolean column                        |
 | Status with no behavior        | Enum                                  |
 | Status with labels and colors  | Enum with methods                     |
-| Status with transition rules   | State Pattern                         |
+| Status with transition rules   | Enum with `canTransitionTo()`         |
+| Status-specific behavior       | Enum with methods                     |
 | Transitions with side effects  | State Pattern with Transition classes |
-| Status-specific business logic | State Pattern                         |
+| Need parameter type narrowing  | State Pattern with classes            |
 
-The general rule: start with an enum. If you find yourself adding complex transition logic, validation rules for which transitions are allowed, or state-specific behavior beyond simple labels, upgrade to the State Pattern. The migration is straightforward — you are replacing one cast with another.
+The general rule: start with an enum. Most status fields never outgrow it. An enum with `canTransitionTo()`, behavior methods, and a `transitionTo()` that throws on invalid transitions covers the vast majority of real-world state management needs — in a single file, with no dependencies.
 
-Do not jump to the State Pattern for a status field that has three values and no transition rules. An enum is simpler and sufficient. The State Pattern earns its keep when the answer to "can this status change to that status?" depends on business rules, and when transitions carry side effects that must run regardless of where the transition is triggered.
+Upgrade to the full State Pattern with separate classes when transitions carry side effects that justify dedicated Transition classes (sending emails, updating timestamps, dispatching events across multiple entry points), or when you genuinely need parameter type narrowing (a method that only accepts a `PendingOrderState`). At the model level, this type narrowing is rarely worth the cost of maintaining a class per state.
+
+Do not jump to the State Pattern for a status field that has three values and no transition rules. An enum is simpler and sufficient.
 
 For a domain-oriented take on states — including transition classes, states without transitions, and the interplay between states and enums — see [States, Transitions, and Enums](/books/thinking-in-domains-in-laravel/states-transitions-and-enums) in *Thinking in Domains in Laravel*.
 
 ## The State Pattern Checklist
 
-1. **Start with an enum** — upgrade to the State Pattern only when transition rules or side effects justify it
+1. **Start with an enum** — add `canTransitionTo()` and behavior methods on the enum before reaching for separate state classes. Upgrade to the State Pattern only when side effects or parameter type narrowing justify it
 2. **Define all transitions in `config()`** — the state machine should be readable in one place
 3. **Use Transition classes for side effects** — sending emails, updating timestamps, dispatching events
 4. **Define state-specific behavior on state classes** — `canBeEdited()`, `canBeCancelled()` instead of status checks in views
@@ -540,9 +604,9 @@ For a domain-oriented take on states — including transition classes, states wi
 ## Summary
 
 - State management starts simple with string columns but quickly becomes unmanageable as business rules grow. Transition logic scatters across controllers, jobs, and commands, making bugs like invalid state jumps invisible until production.
-- PHP enums solve type safety and discoverability but cannot enforce transition rules or carry side effects. They are the right choice for statuses with no lifecycle — `Currency`, `PaymentMethod`, `UserRole`.
-- The State Pattern encapsulates each state in a dedicated class. All valid transitions are declared in a single `config()` method, making the entire state machine readable at a glance.
-- Invalid transitions throw a `CouldNotPerformTransition` exception. With enums, invalid transitions fail silently. With the State Pattern, they are structurally impossible.
+- PHP enums solve type safety, discoverability, and — with `canTransitionTo()` and behavior methods — most state management needs in a single file. An enum with transition rules handles the majority of real-world scenarios without any extra classes or dependencies.
+- The State Pattern with separate classes is justified when transitions carry side effects (emails, timestamps, events) that benefit from dedicated Transition classes, or when you need parameter type narrowing. All valid transitions are declared in a single `config()` method, making the entire state machine readable at a glance.
+- Invalid transitions throw a `CouldNotPerformTransition` exception. Bare enums without transition logic do not enforce valid transitions — you can set any value directly. With the State Pattern, invalid transitions are caught automatically.
 - Transition classes encapsulate side effects — sending emails, updating timestamps, dispatching events. They run wherever the transition is triggered, not just from controllers.
 - State-specific behavior methods (`canBeEdited()`, `canBeCancelled()`) replace scattered conditional checks in views and controllers. Adding a new state means creating one class, not modifying every template.
 - The State Pattern is testable in isolation. You can verify valid transitions, assert that invalid ones throw, check side effects, and test behavior methods with Pest datasets.

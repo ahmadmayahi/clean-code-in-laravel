@@ -19,15 +19,12 @@ namespace App\Jobs;
 
 use App\Models\Order;
 use App\Services\Payment\StripePaymentService;
-use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
 
 class ProcessOrderPaymentJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
     public function __construct(
         private readonly Order $order,
@@ -134,7 +131,7 @@ Laravel gives you control over what happens when things go wrong — how many ti
 ```php
 class ProcessOrderPaymentJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
     public int $tries = 3;                    // Retry up to 3 times
     public int $backoff = 60;                 // Wait 60 seconds between retries
@@ -177,7 +174,7 @@ The `$this->release()` method puts the Job back on the queue with an optional de
 ```php
 class ProcessRefundJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
     public int $tries = 5;
 
@@ -261,7 +258,7 @@ use Illuminate\Support\Facades\Redis;
 
 class SyncProductToMarketplaceJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
     public function __construct(
         private readonly Product $product,
@@ -313,7 +310,7 @@ use Illuminate\Support\Facades\Redis;
 
 class GenerateExternalReportJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
     public function retryUntil(): DateTime
     {
@@ -363,7 +360,7 @@ This is why idempotency matters. An idempotent Job produces the same result whet
 ```php
 class ProcessOrderPaymentJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
     public function __construct(
         private readonly Order $order,
@@ -861,7 +858,7 @@ A Job is dispatched at one point in time and processed at another — seconds, m
 The fix is to capture all necessary state at dispatch time, not at execution time:
 
 ```php
-// Bad: fetches the commit hash when the job runs — it may have changed
+// Before: fetches the commit hash when the job runs — it may have changed
 class DeploySiteJob implements ShouldQueue
 {
     public function __construct(
@@ -877,7 +874,7 @@ class DeploySiteJob implements ShouldQueue
     }
 }
 
-// Good: captures the commit hash at dispatch time
+// After: captures the commit hash at dispatch time
 class DeploySiteJob implements ShouldQueue
 {
     public function __construct(
@@ -905,17 +902,17 @@ This principle applies to configuration values, exchange rates, feature flags, a
 - **Serializing large payloads.** Jobs serialize their constructor data into the queue. Passing an entire collection of models, a large array, or a file's contents bloats the queue payload and slows dispatching. Instead, pass IDs or references and let the Job fetch what it needs:
 
 ```php
-// Bad: serializes the entire collection
+// Before: serializes the entire collection
 SendBulkEmailJob::dispatch($users);
 
-// Good: pass IDs, fetch in the Job
+// After: pass IDs, fetch in the Job
 SendBulkEmailJob::dispatch($users->pluck('id')->all());
 ```
 
 - **Injecting services through the constructor.** Only pass data through the constructor — services get serialized into the queue payload, which bloats it and breaks when the class changes. Use `handle()` method injection instead — Laravel's container resolves the dependency when the Job runs:
 
 ```php
-// Bad: the service gets serialized into the queue
+// Before: the service gets serialized into the queue
 class GenerateReportJob implements ShouldQueue
 {
     public function __construct(
@@ -929,7 +926,7 @@ class GenerateReportJob implements ShouldQueue
     }
 }
 
-// Good: the container resolves the service at runtime
+// After: the container resolves the service at runtime
 class GenerateReportJob implements ShouldQueue
 {
     public function __construct(
@@ -986,15 +983,15 @@ Avoid mutable static state in classes used by Jobs, or clear it explicitly. Bett
 4. **Set `$tries` and `$backoff`** — always plan for failure
 5. **Implement `failed()`** — notify someone when a Job permanently fails
 6. **Use `afterCommit()`** when dispatching inside transactions — prevent Jobs from referencing uncommitted data
-7. **Use `SerializesModels`** — it stores model IDs, not entire models, preventing stale data
+7. **Use the `Queueable` trait** — it combines `Dispatchable`, `InteractsWithQueue`, `Queueable`, and `SerializesModels` into a single import
 8. **Pass data, not services** — use `handle()` method injection for services; only pass data through the constructor
 9. **Pass IDs, not objects** — do not serialize large collections or file contents into the queue payload
 10. **Use job middleware** — `WithoutOverlapping` for exclusive execution, `RateLimited` for API throttling
 11. **Use `$this->release()`** for deliberate retries — when a precondition is not met or a rate limit is hit, release with a delay instead of throwing an exception
 12. **Use `Redis::throttle()` or `Redis::funnel()`** for distributed rate limiting and concurrency control across workers
 13. **Keep Jobs focused** — one Job, one task. Compose with chains and batches
-12. **Use unique Jobs** to prevent duplicates — especially for reports and sync operations
-13. **Separate queues by priority** — run critical and non-critical Jobs on different queues with dedicated workers
+13. **Use unique Jobs** to prevent duplicates — especially for reports and sync operations
+14. **Separate queues by priority** — run critical and non-critical Jobs on different queues with dedicated workers
 14. **Avoid mutable static state** — workers reuse the same process; static variables persist across Jobs
 15. **Test with `Queue::fake()`** — assert that the right Jobs are dispatched with the right data
 

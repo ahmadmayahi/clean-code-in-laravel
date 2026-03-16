@@ -3,14 +3,14 @@
 Consider a dashboard page that shows a user's recent orders, their subscription status, a list of recommended products, and some statistics. Without a View Model, the controller becomes a data-fetching mess:
 
 ```php
-// Bad: the controller is doing too much data preparation
+// Before: the controller is doing too much data preparation
 public function index(Request $request): View
 {
     $user = $request->user();
     $recentOrders = $user->orders()->latest()->limit(5)->get();
     $subscription = $user->subscription;
     $isTrialing = $subscription?->onTrial() ?? false;
-    $daysLeft = $isTrialing ? now()->diffInDays($subscription->trial_ends_at) : null;
+    $daysLeft = $isTrialing ? (int) now()->diffInDays($subscription->trial_ends_at) : null;
     $recommendedProducts = Product::recommended($user)->limit(8)->get();
     $orderStats = [
         'total_spent' => $user->orders()->sum('total'),
@@ -68,7 +68,7 @@ class DashboardViewModel
             return null;
         }
 
-        return now()->diffInDays($this->user->subscription->trial_ends_at);
+        return (int) now()->diffInDays($this->user->subscription->trial_ends_at);
     }
 
     /** @return Collection<int, Product> */

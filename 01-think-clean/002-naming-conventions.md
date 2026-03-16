@@ -6,7 +6,7 @@ Taylor Otwell's code is remarkably consistent in its naming. If you read through
 
 [Models](https://laravel.com/docs/eloquent) are always singular nouns in PascalCase. A model represents a single record in a database table, so it makes sense to name it in the singular:
 
-| Good | Bad | Why It's Bad |
+| After | Before | Why |
 |---|---|---|
 | `User` | `Users` | Plural - a model is one record |
 | `Invoice` | `InvoiceModel` | Redundant suffix |
@@ -29,7 +29,7 @@ When your model name has multiple words, Laravel handles it correctly. `OrderIte
 
 [Controllers](https://laravel.com/docs/controllers) follow the pattern `{SingularResource}Controller`. They are always singular because they handle operations on a type of resource, not on multiple resources. We cover controller structure in detail in the [Thin Controllers](/books/clean-code-in-laravel/thin-controllers) chapter.
 
-| Good | Bad | Why It's Bad |
+| After | Before | Why |
 |---|---|---|
 | `UserController` | `UsersController` | Plural |
 | `InvoiceController` | `InvoiceCtrl` | Abbreviated |
@@ -60,7 +60,7 @@ class ExportOrdersController extends Controller
 Methods in Laravel always use camelCase and typically start with a verb that describes what they do:
 
 ```php
-// Good: verb-first, descriptive
+// After: verb-first, descriptive
 public function calculateTotal(): Money { }
 public function sendNotification(): void { }
 public function findByEmail(string $email): ?User { }
@@ -68,7 +68,7 @@ public function markAsPaid(): void { }
 public function isActive(): bool { }
 public function hasSubscription(): bool { }
 
-// Bad: vague, noun-first, or unclear
+// Before: vague, noun-first, or unclear
 public function total(): Money { }        // Is this getting or calculating?
 public function notification(): void { }   // Is this sending or creating?
 public function email(string $email) { }   // What about the email?
@@ -87,13 +87,13 @@ The rule is simple: a variable name should tell you what it holds, not just that
 The biggest mistake is using short, vague names that force the reader to look elsewhere to understand what the variable contains:
 
 ```php
-// Bad: what is $u? What is $data? What is $inv?
+// Before: what is $u? What is $data? What is $inv?
 $u = User::where('active', true)->get();
 $data = $orders->sum('total');
 $inv = Invoice::where('status', 'pending')->first();
 $temp = $user->created_at->diffInDays(now());
 
-// Good: the name tells you exactly what it holds
+// After: the name tells you exactly what it holds
 $activeUsers = User::where('active', true)->get();
 $monthlyRevenue = $orders->sum('total');
 $pendingInvoice = Invoice::where('status', 'pending')->first();
@@ -106,7 +106,7 @@ When you read `$monthlyRevenue`, you know what it is. When you read `$data`, you
 
 It is tempting to shorten names to save keystrokes, but abbreviated names cost more time in reading than they save in typing. Your editor has autocomplete - use it:
 
-| Bad | Good | Why It's Bad |
+| Before | After | Why |
 |---|---|---|
 | `$usr` | `$user` | Saves two characters, loses clarity |
 | `$addr` | `$shippingAddress` | Which address? Billing? Shipping? |
@@ -143,13 +143,13 @@ This also protects you from mistakes. If you see `$user->sum('balance')`, someth
 A boolean variable should read naturally in an `if` statement. Prefix it with `is`, `has`, `can`, `should`, or `was`:
 
 ```php
-// Good: reads like English
+// After: reads like English
 $isActive = $user->active;
 $hasSubscription = $user->subscription !== null;
 $canEditPost = $user->id === $post->user_id;
 $shouldSendReminder = $invoice->due_at->isToday();
 
-// Bad: what does "true" or "false" mean here?
+// Before: what does "true" or "false" mean here?
 $active = $user->active;           // Is this a boolean or the active record?
 $subscription = true;              // Is this a boolean or a Subscription object?
 $edit = $user->id === $post->user_id;  // Edit what?
@@ -162,13 +162,13 @@ When you read `if ($isActive)`, it flows like a sentence: "if is active." When y
 Names like `$data`, `$result`, `$info`, `$temp`, and `$value` tell you nothing. They are placeholders that never got replaced with a real name:
 
 ```php
-// Bad: generic names that could mean anything
+// Before: generic names that could mean anything
 $data = $request->validated();
 $result = $paymentGateway->charge($amount);
 $info = $user->profile;
 $items = $request->input('products');
 
-// Good: specific names that describe the content
+// After: specific names that describe the content
 $validatedInput = $request->validated();
 $chargeResult = $paymentGateway->charge($amount);
 $userProfile = $user->profile;
@@ -189,7 +189,7 @@ $appliedCoupon = Coupon::where('code', $code)->first();
 $promo = Coupon::where('code', $code)->first(); // Confusing
 ```
 
-This idea comes from [Domain-Driven Design](https://laravel.com/docs/architecture) - using a shared language between developers and the business. When everyone uses the same words, there is less room for misunderstanding.
+This idea comes from [Domain-Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design) - using a shared language between developers and the business. When everyone uses the same words, there is less room for misunderstanding.
 
 ## Database
 
@@ -229,13 +229,13 @@ Notice the patterns: foreign keys use `{model}_id`, timestamps use `{verb}_at` (
 [Routes](https://laravel.com/docs/routing) use plural nouns in kebab-case for the URI, and follow [RESTful](https://laravel.com/docs/controllers#resource-controllers) conventions:
 
 ```php
-// Good: RESTful, plural, kebab-case
+// After: RESTful, plural, kebab-case
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{user}', [UserController::class, 'show']);
 Route::get('/order-items', [OrderItemController::class, 'index']);
 Route::post('/order-items', [OrderItemController::class, 'store']);
 
-// Bad: singular, camelCase, or verb-based
+// Before: singular, camelCase, or verb-based
 Route::get('/user', [UserController::class, 'index']);       // Singular
 Route::get('/orderItems', [OrderItemController::class, 'index']); // camelCase
 Route::get('/getUsers', [UserController::class, 'index']);   // Verb in URL
@@ -246,12 +246,12 @@ Route::get('/getUsers', [UserController::class, 'index']);   // Verb in URL
 When a route has multiple words, use dashes (kebab-case), not underscores. This is a web-wide convention - [Google recommends dashes](https://developers.google.com/search/docs/crawling-indexing/url-structure) over underscores in URLs, and it is what most REST APIs use:
 
 ```php
-// Good: dashes in the URL
+// After: dashes in the URL
 Route::get('/order-items', [OrderItemController::class, 'index']);
 Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
 Route::post('/forgot-password', ForgotPasswordController::class);
 
-// Bad: underscores or camelCase in the URL
+// Before: underscores or camelCase in the URL
 Route::get('/order_items', [OrderItemController::class, 'index']);
 Route::get('/paymentMethods', [PaymentMethodController::class, 'index']);
 ```
@@ -392,7 +392,7 @@ For territory-specific languages, use the [ISO 15897](https://en.wikipedia.org/w
 
 [Form requests](https://laravel.com/docs/validation#form-request-validation) describe the action they validate:
 
-| Good | Bad |
+| After | Before |
 |---|---|
 | `StoreUserRequest` | `UserRequest` |
 | `UpdateOrderRequest` | `OrderValidation` |
@@ -443,7 +443,7 @@ The enum name describes what it represents (`OrderStatus`, `PaymentMethod`, `Use
 
 [Middleware](https://laravel.com/docs/middleware) names describe what they check or enforce. Use PascalCase and keep the name short:
 
-| Good | Bad | Why It's Bad |
+| After | Before | Why |
 |---|---|---|
 | `EnsureEmailIsVerified` | `CheckEmail` | Too vague — check what? |
 | `HandleLocale` | `LocaleMiddleware` | Redundant suffix |
@@ -476,7 +476,7 @@ use HasApiTokens;
 
 Follow the same pattern in your own traits. The name should describe what the trait gives the class, not what the class is:
 
-| Good | Bad | Why It's Bad |
+| After | Before | Why |
 |---|---|---|
 | `HasSubscription` | `SubscriptionTrait` | Redundant suffix |
 | `Searchable` | `SearchTrait` | Redundant suffix |
@@ -522,7 +522,7 @@ The method name is what you call when chaining -`paid()`, `recent()`, `forUser()
 
 Avoid scope names that start with verbs like `get` or `find` — those suggest a method that returns a result, not a scope that filters a query:
 
-| Good | Bad | Why It's Bad |
+| After | Before | Why |
 |---|---|---|
 | `active` | `getActive` | Scopes do not "get" — they filter |
 | `published` | `findPublished` | Same issue — sounds like it returns a result |

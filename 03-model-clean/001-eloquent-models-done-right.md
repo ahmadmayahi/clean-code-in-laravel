@@ -197,28 +197,48 @@ public function highValuePayments(): HasMany
 
 Constrained relationships are useful when the constraint represents a *concept* — "active items" or "high-value payments" are things your domain talks about. If the constraint is ad-hoc and only used in one place, use a scope or a query builder method instead of polluting the model with a relationship that is really just a filtered query.
 
-### Default Models
+### Handling Nullable Relationships
 
-When a relationship might be `null`, accessing its attributes throws errors or forces you to add null checks everywhere. Default models solve this by returning a fallback object when the relationship is empty:
+When a relationship might be `null`, you need to handle it safely. Laravel provides `withDefault()` to return a fallback model when the relationship is empty, but this is a pattern you should avoid. Fabricating a fake model with made-up data (`'name' => 'Unassigned'`) introduces phantom objects that look real but are not persisted, have no ID, and can cause subtle bugs downstream — especially if that object gets passed to code that expects a real model.
+
+Instead, use the nullsafe operator:
 
 ```php
-public function manager(): BelongsTo
+// The relationship is nullable — handle it explicitly
+$managerName = $employee->manager?->name ?? 'Unassigned';
+```
+
+This is clear about what is happening: the relationship might be null, and you are providing a display fallback. The nullsafe operator is a language-level feature that every PHP developer recognizes. It does not fabricate objects.
+
+For nullable relationships, document the nullability in a PHPDoc block at the top of the model. Eloquent models are full of magic properties that are invisible without documentation — columns, accessors, and relationships are all accessed through `__get()`. A PHPDoc block makes them visible to your IDE and to other developers:
+
+```php
+/**
+ * @property int $id
+ * @property string $name
+ * @property int|null $manager_id
+ * @property-read User|null $manager
+ * @property-read Collection<int, Project> $projects
+ */
+class Employee extends Model
 {
-    return $this->belongsTo(User::class, 'manager_id')
-        ->withDefault([
-            'name' => 'Unassigned',
-        ]);
+    public function manager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
 }
 ```
 
-Now `$employee->manager->name` returns `"Unassigned"` instead of throwing a "property of null" error. This eliminates scattered null checks in your views and logic without masking the fact that the relationship is optional.
+The `@property-read User|null $manager` annotation tells your IDE and every developer reading the code that this relationship is nullable. When someone types `$employee->manager->`, their IDE will warn them that this might be null. This is better protection than `withDefault()` because it catches the problem at development time, not by hiding it behind a fake object at runtime.
+
+You do not need to document every column and relationship on every model from day one. But for models that are central to your domain — the ones other developers interact with regularly — a PHPDoc block pays for itself quickly.
 
 ### Relationship Methods Are Not Query Methods
 
 A common mistake is adding query logic to relationship methods — conditions that change based on runtime state:
 
 ```php
-// Bad: the relationship changes based on who is looking
+// Before: the relationship changes based on who is looking
 public function posts(): HasMany
 {
     if (auth()->user()?->isAdmin()) {
@@ -263,7 +283,7 @@ Accessors are for derived data that is a direct function of the model's own attr
 But accessors are not a place for business logic. Consider this:
 
 ```php
-// Bad: business logic disguised as an accessor
+// Before: business logic disguised as an accessor
 protected function discountPercentage(): Attribute
 {
     return Attribute::make(
@@ -338,7 +358,7 @@ Order::placedBetween(now()->subMonth(), now())->get();
 Each scope should apply one constraint. When you need a combination, compose them in the query — do not create "combo scopes" that bundle unrelated conditions:
 
 ```php
-// Bad: this scope does three things
+// Before: this scope does three things
 public function scopeReadyToShip(Builder $query): void
 {
     $query->where('status', OrderStatus::Paid)
@@ -346,7 +366,7 @@ public function scopeReadyToShip(Builder $query): void
         ->whereHas('items', fn (Builder $q) => $q->where('in_stock', true));
 }
 
-// Good: compose simple scopes
+// After: compose simple scopes
 Order::query()
     ->forStatus(OrderStatus::Paid)
     ->active()
@@ -521,7 +541,7 @@ When a model has more than five or six scopes, it is time to extract them into a
 If a model method orchestrates multiple steps, calls external services, or has side effects beyond data persistence, it belongs in an [Action](/books/clean-code-in-laravel/actions):
 
 ```php
-// Bad: business logic in the model
+// Before: business logic in the model
 class Order extends Model
 {
     public function cancel(): void
@@ -540,7 +560,7 @@ class Order extends Model
     }
 }
 
-// Good: an Action handles the orchestration
+// After: an Action handles the orchestration
 class CancelOrderAction
 {
     public function __construct(
@@ -781,7 +801,7 @@ This is not a Laravel requirement — it is a readability convention. When every
 
 - Eloquent models should focus on three things: data definition, relationships, and data access. Everything else — email sending, PDF generation, complex business logic — belongs in [Actions](/books/clean-code-in-laravel/actions), [Services](/books/clean-code-in-laravel/organizing-your-application), [Jobs](/books/clean-code-in-laravel/jobs), or dedicated classes.
 - Cast every column to its correct type using the `casts()` method. Enums for statuses, `datetime` for dates, `boolean` for flags, custom casts for value objects. The cost is near zero, the benefit is type safety everywhere.
-- Always type relationship return values. Use constrained relationships for domain concepts, default models to avoid null checks, and keep relationship methods pure — never add conditional logic based on runtime state.
+- Always type relationship return values. Use constrained relationships for domain concepts, the nullsafe operator for nullable relationships, and keep relationship methods pure — never add conditional logic based on runtime state.
 - Accessors are for derived data that is a direct function of the model's own attributes. If an accessor queries the database, applies business rules, or calls external services, move that logic to a Service or Action.
 - When you need to query, sort, or index a derived value, use a database generated column instead of an accessor. Generated columns are computed by the database and are visible to queries and indexes. Use `VIRTUAL` for computed-on-read values and `STORED` for indexable ones.
 - Scopes should apply one constraint each and compose cleanly. When a model accumulates more than five or six scopes, extract them into a [Custom Query Builder](/books/clean-code-in-laravel/custom-query-builders-and-collections).
@@ -800,9 +820,9 @@ This is not a Laravel requirement — it is a readability convention. When every
 - [20 Laravel Eloquent Tips and Tricks](https://laravel-news.com/eloquent-tips-tricks) — Laravel News
 - [Effective Eloquent](https://laravel-news.com/effective-eloquent) — Laravel News
 - [Dedicated Query Builders in Laravel](https://timacdonald.me/dedicated-eloquent-model-query-builders/) — Tim MacDonald
-- [Simplify Your Eloquent Scopes](https://timacdonald.me/giving-collections-a-voice/) — Tim MacDonald
-- [Laravel Beyond CRUD: Models](https://stitcher.io/blog/laravel-beyond-crud-03-actions) — Brent Roose
-- [Lean Models in Domain-Oriented Laravel](https://stitcher.io/blog/laravel-beyond-crud-04-models) — Brent Roose
+- [Giving Collections a Voice](https://timacdonald.me/giving-collections-a-voice/) — Tim MacDonald
+- [Laravel Beyond CRUD: Actions](https://stitcher.io/blog/laravel-beyond-crud-03-actions) — Brent Roose
+- [Laravel Beyond CRUD: Models](https://stitcher.io/blog/laravel-beyond-crud-04-models) — Brent Roose
 - [Eloquent Performance Patterns](https://eloquent-course.reinink.ca/) — Jonathan Reinink
 - [20 Tips to Optimize Your Eloquent Queries](https://martinjoo.dev/35-eloquent-recipes) — Martin Joo
 - [MySQL Generated Columns in Laravel](/blog/mysql-generated-columns-in-laravel) — Ahmad Mayahi

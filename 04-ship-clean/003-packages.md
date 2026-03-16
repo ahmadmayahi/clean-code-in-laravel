@@ -89,7 +89,7 @@ These packages belong in your `require-dev` section. They make development faste
 
 ### Data and Structure
 
-**[Laravel Data](https://github.com/spatie/laravel-data)** (`spatie/laravel-data`) is a powerful package that unifies data objects, validation, and API transformation into a single class. If you have read the [DTOs](/books/clean-code-in-laravel/data-transfer-objects) chapter, you know the value of typed data structures. Laravel Data takes that idea further — a single data class can serve as a DTO, a Form Request replacement, and an API Resource, with built-in casting, validation rules, and TypeScript generation.
+**[Laravel Data](https://spatie.be/docs/laravel-data)** (`spatie/laravel-data`) is a powerful package that unifies data objects, validation, and API transformation into a single class. If you have read the [DTOs](/books/clean-code-in-laravel/data-transfer-objects) chapter, you know the value of typed data structures. Laravel Data takes that idea further — a single data class can serve as a DTO, a Form Request replacement, and an API Resource, with built-in casting, validation rules, and TypeScript generation.
 
 ```php
 use Spatie\LaravelData\Data;
@@ -187,7 +187,7 @@ Installing a package is not a one-time decision. Dependencies need ongoing care:
 - Every package is a dependency. Every dependency is a bet on someone else's code, maintenance, and priorities. Make those bets deliberately.
 - Before installing a package, ask: does Laravel already solve this? Can I build it in a reasonable amount of time? Is this package well-maintained?
 - Simple integrations — API calls, basic string operations, straightforward data transformations — often do not need a package. Laravel's HTTP client, collection methods, and helper functions cover more ground than you think.
-- Some packages are worth the dependency. [Debugbar](https://github.com/barryvdh/laravel-debugbar) for development visibility, [Larastan](https://github.com/larastan/larastan) for static analysis, [Laravel Data](https://github.com/spatie/laravel-data) for typed data objects, [Laravel Permission](https://github.com/spatie/laravel-permission) for access control, [Laravel Backup](https://github.com/spatie/laravel-backup) for disaster recovery, and [Horizon](https://laravel.com/docs/horizon) for queue monitoring have all earned their place.
+- Some packages are worth the dependency. [Debugbar](https://github.com/barryvdh/laravel-debugbar) for development visibility, [Larastan](https://github.com/larastan/larastan) for static analysis, [Laravel Data](https://spatie.be/docs/laravel-data) for typed data objects, [Laravel Permission](https://github.com/spatie/laravel-permission) for access control, [Laravel Backup](https://github.com/spatie/laravel-backup) for disaster recovery, and [Horizon](https://laravel.com/docs/horizon) for queue monitoring have all earned their place.
 - Evaluate packages rigorously: check maintenance activity, read the source code, verify the test suite exists, and consider the bus factor.
 - Build your own when the integration is simple, the package does too much, or the feature is core to your business logic.
 - Maintain your dependencies actively. Run `composer outdated` regularly, update in isolation, and remove packages you no longer use.

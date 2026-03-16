@@ -304,13 +304,13 @@ This means:
 A good rule of thumb: if you need to add a comment to explain what a piece of code does, the code itself is probably too complex. Rewrite it until the comment is unnecessary.
 
 ```php
-// Bad: needs a comment to explain
+// Before: needs a comment to explain
 // Get users who registered in the last 30 days and have verified their email
 $users = User::where('created_at', '>', now()->subDays(30))
     ->whereNotNull('email_verified_at')
     ->get();
 
-// Good: the code explains itself
+// After: the code explains itself
 $users = User::query()
     ->registeredInLast(days: 30)
     ->verified()

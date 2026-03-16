@@ -407,7 +407,7 @@ For Horizon, Forge detects that Horizon is installed and automatically appends `
 
 ### SSL Certificates
 
-Forge integrates with Let's Encrypt. One click and your site has a free SSL certificate that auto-renews every week. No manual renewal cron, no certificate management.
+Forge integrates with Let's Encrypt. One click and your site has a free SSL certificate that auto-renews before expiration. No manual renewal cron, no certificate management.
 
 ### Push to Deploy
 

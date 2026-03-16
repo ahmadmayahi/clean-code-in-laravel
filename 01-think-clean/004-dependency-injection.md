@@ -218,7 +218,7 @@ This is called [automatic resolution](https://laravel.com/docs/container#zero-co
 
 ## Constructor Injection
 
-[Constructor injection](https://laravel.com/docs/container#the-make-method) is the most common pattern. You declare your dependencies as constructor parameters, and Laravel injects them when the class is created:
+[Constructor injection](https://laravel.com/docs/container#automatic-injection) is the most common pattern. You declare your dependencies as constructor parameters, and Laravel injects them when the class is created:
 
 ```php
 class PlaceOrderAction

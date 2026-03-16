@@ -1,6 +1,6 @@
-In many codebases, validation is scattered — some in controllers, some in models, some in JavaScript. In a clean Laravel application, validation has one home: Form Requests.
+In many codebases, validation is scattered — some in controllers, some in models, some in JavaScript. Laravel gives you two clean options: inline validation with `$request->validate()` for simple cases, and Form Requests for everything else.
 
-A [Form Request](https://laravel.com/docs/validation#form-request-validation) is a dedicated class that handles validation and authorization for a single HTTP request. It keeps your [controllers](/books/clean-code-in-laravel/controllers) thin, makes your validation rules testable, and provides a single source of truth for what data a given endpoint accepts.
+A [Form Request](https://laravel.com/docs/validation#form-request-validation) is a dedicated class that handles validation and authorization for a single HTTP request. It keeps your [controllers](/books/clean-code-in-laravel/controllers) thin, makes your validation rules testable, and provides a single source of truth for what data a given endpoint accepts. Whether the extra class is worth it depends on the complexity of your validation — we cover that decision in detail at the end of this chapter.
 
 ## Creating a Form Request
 
@@ -22,10 +22,10 @@ This creates the file at `app/Http/Requests/Order/StoreOrderRequest.php`.
 
 ## From Inline Validation to Form Requests
 
-Here is the progression from messy to clean:
+Here is the progression from inline validation to a Form Request:
 
 ```php
-// Bad: validation in the controller
+// Before: validation in the controller
 public function store(Request $request): RedirectResponse
 {
     $validated = $request->validate([
@@ -42,7 +42,7 @@ public function store(Request $request): RedirectResponse
 This works for simple cases, but it clutters the controller. The moment you need the same validation in an API endpoint, you duplicate the rules.
 
 ```php
-// Good: Form Request
+// After: Form Request
 class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool
@@ -366,7 +366,7 @@ By default it checks the primary key. Pass a second argument to check a differen
 
 ### Validating Country Codes and Currencies
 
-For international applications, the `CountryCode` and `Currency` rules validate against ISO standards. They require the `league/iso3166` package:
+For international applications, the `CountryCode` and `Currency` rules validate against ISO standards. `CountryCode` requires the `league/iso3166` package, and `Currency` requires `alcohol/iso4217`:
 
 ```php
 use Spatie\ValidationRules\Rules\CountryCode;
@@ -601,6 +601,35 @@ it('allows legitimate email domains', function (): void {
 });
 ```
 
+## When to Use Form Requests
+
+Form Requests are not always the right choice. They move validation and authorization one step away from the controller, which is a trade-off: you reduce clutter in the controller, but the reader now has to open a separate class to see what the endpoint accepts and who can access it.
+
+This trade-off is worth it when the validation or authorization logic is substantial enough to distract from the controller's core logic. Think conditional rules, cross-field validation with `after()`, shared rules between store and update, or authorization checks that involve relationship lookups. In these cases, a Form Request gives the logic a proper home and makes it independently testable.
+
+The trade-off is not worth it when the validation is simple enough that your eyes can blur past it. A controller that validates three fields with basic rules like `required|string|max:255` is perfectly readable. Extracting that into a dedicated class creates a file, an import, and a level of indirection — all for logic that was not causing any real distraction.
+
+There is also a subtlety that catches many teams: Form Request injection is a hidden side effect. When you type-hint `StoreUserRequest` instead of `Request`, Laravel automatically calls `authorize()` and runs validation before the controller method executes. The developer reading the controller sees a parameter and nothing else. There is no explicit `$request->validate()` call, no `$this->authorize()` — the behavior is invisible unless you know to look for it.
+
+This is fine on teams that have adopted Form Requests as a convention and know to check the request class. But on teams where the convention is not established, developers often miss that authorization and validation are happening at all. Some teams solve this by keeping simple validation inline and only extracting to a Form Request when the complexity justifies it, making the extraction itself a signal that "there is non-trivial logic here."
+
+Use a Form Request when:
+
+- The validation rules span more than a handful of lines, or include conditional logic, cross-field checks, or custom Rule objects
+- The same validation needs to be reused across multiple endpoints (web and API, for example)
+- The authorization logic involves relationship lookups or policy checks that would clutter the controller
+- You need `prepareForValidation()`, `passedValidation()`, or `after()` hooks
+- You want to bridge validation to a DTO with a `toDto()` method
+
+Keep validation inline when:
+
+- The endpoint has a few simple rules that are easy to skim past
+- The authorization is a one-liner or handled entirely by a Policy
+- The validation is unique to this single endpoint and unlikely to be reused
+- The controller is already thin enough that the validation does not compete for attention
+
+The goal is not to use Form Requests everywhere. The goal is to move logic out of the controller only when leaving it in would make the controller harder to read.
+
 ## The Form Request Checklist
 
 1. **One Form Request per controller method** — `StoreUserRequest`, `UpdateUserRequest`
@@ -616,6 +645,7 @@ it('allows legitimate email domains', function (): void {
 
 ## Summary
 
+- Form Requests are a trade-off: they reduce clutter in the controller at the cost of moving logic one step away. Use them when validation or authorization is complex enough to distract from the controller's core logic. Keep validation inline when the rules are simple and easy to skim past.
 - A Form Request is a dedicated class for validation and authorization. It keeps [controllers](/books/clean-code-in-laravel/controllers) thin and makes validation rules testable and reusable across web and API endpoints.
 - Use array syntax for rules (`['required', 'string']`) instead of pipe syntax (`'required|string'`). Array syntax is easier to read and required when using custom Rule objects.
 - Use `authorize()` for simple authorization checks. For complex authorization, use [Policies](https://laravel.com/docs/authorization#creating-policies) and return `true` from `authorize()`.

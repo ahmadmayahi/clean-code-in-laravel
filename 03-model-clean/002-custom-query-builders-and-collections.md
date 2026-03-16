@@ -349,10 +349,10 @@ If a model only needs basic collection operations (`sum`, `filter`, `map`, `pluc
 A common mistake is filtering in the Collection when you should filter in the Query Builder:
 
 ```php
-// Bad: fetches ALL orders, then filters in PHP
+// Before: fetches ALL orders, then filters in PHP
 $shipped = Order::all()->where('status', OrderStatus::Shipped);
 
-// Good: filters at the database level
+// After: filters at the database level
 $shipped = Order::query()->shipped()->get();
 ```
 
@@ -361,7 +361,7 @@ The first line fetches every order from the database into memory, hydrates them 
 The rule: **filter in the Query Builder** (database level) whenever possible. Use Collection methods for in-memory operations on data you have already fetched:
 
 ```php
-// Good: fetch once, then work with the collection
+// After: fetch once, then work with the collection
 $orders = Order::query()
     ->forUser($user->id)
     ->placedThisMonth()
@@ -560,10 +560,10 @@ Notice `$orders->getCollection()` — when you paginate, Laravel returns a `Leng
 ### Filtering in the Collection When You Should Use the Builder
 
 ```php
-// Bad: loads all orders, filters in PHP
+// Before: loads all orders, filters in PHP
 $highValue = Order::all()->where('total', '>=', 100);
 
-// Good: filters at the database level
+// After: filters at the database level
 $highValue = Order::query()->highValue()->get();
 ```
 
@@ -597,19 +597,19 @@ Builder methods should represent meaningful domain concepts. `forUser()` is bord
 Builder methods should return `self` so they can be chained. A common mistake is returning `void` or `Builder` (the parent class) instead:
 
 ```php
-// Bad: returns void — cannot chain
+// Before: returns void — cannot chain
 public function active(): void
 {
     $this->where('is_active', true);
 }
 
-// Bad: returns parent type — loses IDE autocompletion for custom methods
+// Before: returns parent type — loses IDE autocompletion for custom methods
 public function active(): Builder
 {
     return $this->where('is_active', true);
 }
 
-// Good: returns self — chainable with full IDE support
+// After: returns self — chainable with full IDE support
 public function active(): self
 {
     return $this->where('is_active', true);

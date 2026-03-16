@@ -1,6 +1,6 @@
 Most books put code style at the end, as an afterthought. We put it here, in Chapter 3, because code style is not a finishing touch - it is a foundation. If your team cannot agree on how code looks, every pull request becomes a formatting debate instead of a logic review.
 
-Taylor Otwell settled this for the Laravel community. Laravel follows [PSR-12](https://www.php-fig.org/psr/psr-12/) with a few opinionated additions, and the official tool for enforcing it is [Laravel Pint](https://laravel.com/docs/pint).
+Taylor Otwell settled this for the Laravel community. Laravel uses its own opinionated coding style (based on [PER Coding Style](https://www.php-fig.org/per/coding-style/)), and the official tool for enforcing it is [Laravel Pint](https://laravel.com/docs/pint).
 
 ## Laravel Pint
 
@@ -219,14 +219,14 @@ return RectorConfig::configure()
     ]);
 ```
 
-If you are upgrading between Laravel versions, you can target a specific version level. For example, to apply all rules up to Laravel 12:
+If you are upgrading between Laravel versions, you can target a specific version level. Check the `LaravelLevelSetList` class in the [driftingly/rector-laravel](https://github.com/driftingly/rector-laravel) package for the constants available for your version:
 
 ```php
 use RectorLaravel\Set\LaravelLevelSetList;
 
 return RectorConfig::configure()
     ->withSets([
-        LaravelLevelSetList::UP_TO_LARAVEL_120,
+        LaravelLevelSetList::UP_TO_LARAVEL_110,
     ]);
 ```
 

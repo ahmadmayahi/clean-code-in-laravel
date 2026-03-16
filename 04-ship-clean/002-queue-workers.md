@@ -82,8 +82,8 @@ That is all a worker is: pop from a list, do the work, repeat. Laravel adds seri
 If the `pcntl` extension is available, the worker registers signal handlers:
 
 - **SIGTERM / SIGQUIT / SIGINT** — graceful shutdown. The worker finishes the current Job, then exits. This is what `queue:restart` triggers.
-- **SIGUSR2** — pause. The worker stops picking up new Jobs but stays alive. `queue:pause` sends this.
-- **SIGCONT** — resume. The worker starts processing again. `queue:continue` sends this.
+- **SIGUSR2** — pause. The worker stops picking up new Jobs but stays alive.
+- **SIGCONT** — resume. The worker starts processing again.
 
 This is why workers respond gracefully to `Ctrl+C` — it sends `SIGINT`, and the worker finishes the current Job before exiting. It does not abandon the Job mid-execution.
 
@@ -813,7 +813,7 @@ Queue::looping(function (): void {
 - **Ignoring memory limits.** Workers are long-running processes. Memory leaks that are invisible in a single HTTP request compound over thousands of Jobs. Always set `--max-jobs` or `--max-time` to force periodic restarts, and set `--memory` as a safety net.
 - **`retry_after` shorter than `--timeout`.** If a Job is still running when `retry_after` expires, the queue thinks the worker crashed and hands the Job to another worker. Now two workers are processing the same Job simultaneously. Always set `retry_after` longer than `--timeout`.
 - **Lost database connections.** Workers hold database connections open for hours or days. Databases may close idle connections. When this happens, the next Job fails with a "server has gone away" error. Laravel detects this with the `DetectsLostConnections` trait and exits the worker so Supervisor can restart it with a fresh connection. But if you see these errors frequently, check your database's `wait_timeout` setting.
-- **Deleted models between dispatch and execution.** When a Job dispatches with an Eloquent model via `SerializesModels`, only the model's ID is stored. When the worker deserializes the Job, it re-fetches the model from the database. If the model was deleted between dispatch and execution, the Job throws a `ModelNotFoundException`. Use the `DeleteWhenMissingModels` trait on the Job to silently delete it instead of failing.
+- **Deleted models between dispatch and execution.** When a Job dispatches with an Eloquent model via `SerializesModels`, only the model's ID is stored. When the worker deserializes the Job, it re-fetches the model from the database. If the model was deleted between dispatch and execution, the Job throws a `ModelNotFoundException`. Set `public $deleteWhenMissingModels = true` on the Job (or use the `#[DeleteWhenMissingModels]` attribute) to silently delete it instead of failing.
 
 ## The Queue Workers Checklist
 

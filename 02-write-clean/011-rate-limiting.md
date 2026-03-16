@@ -1,6 +1,6 @@
-Rate limiting is one of those things that sounds boring until you need it. An API consumer hammers your endpoint 10,000 times in a minute. A background job hits a third-party service so fast it gets your account banned. A login form gets brute-forced. Suddenly, rate limiting is the most important thing in your application.
+Rate limiting is one of those things that sounds boring until you need it. An API consumer hammers your endpoint 10,000 times in a minute. A background job hits a third-party service so fast it gets your account banned. A login form gets brute-forced. In the right places, rate limiting is essential protection. In the wrong places, it frustrates legitimate users for no meaningful gain.
 
-Laravel has built-in rate limiting for HTTP routes and queued jobs. For finer control over job throttling, Spatie's [laravel-rate-limited-job-middleware](https://github.com/spatie/laravel-rate-limited-job-middleware) provides a fluent API with configurable time windows and backoff strategies. This chapter covers both, with practical patterns for keeping your application well-behaved.
+Laravel has built-in rate limiting for HTTP routes and queued jobs. For finer control over job throttling, Spatie's [laravel-rate-limited-job-middleware](https://github.com/spatie/laravel-rate-limited-job-middleware) provides a fluent API with configurable time windows and backoff strategies. This chapter covers both — how to apply rate limiting, and where it actually makes sense.
 
 ## Rate limiting HTTP routes
 
@@ -333,8 +333,35 @@ The rate limiters are still registered in one place, but the boot method stays c
 
 > Rate limiting is a cross-cutting concern. Define your limits where they are easy to find, attach them declaratively to routes and jobs, and let the framework handle the rest. Your controllers and job handlers should never contain rate limiting logic.
 
+## When to Apply Rate Limiting
+
+Rate limiting is a defensive tool, and like any defensive tool, applying it in the wrong place creates friction without meaningful protection.
+
+The strongest case for rate limiting is on endpoints where abuse has real consequences: login forms (brute force), password reset (account enumeration), payment endpoints (card testing), and any route that triggers expensive work like sending emails, processing files, or calling external APIs. In these cases, the cost of not rate limiting is high, and the limit rarely affects legitimate users.
+
+The case weakens on standard CRUD endpoints in an authenticated application. If a user is already authenticated and authorized, rate limiting their ability to list or update their own resources adds friction with little security benefit. The authentication layer already gates access, and the authorization layer already scopes it. Adding a rate limit on top means a power user working quickly — importing data, bulk editing — hits a wall that feels arbitrary.
+
+For queued jobs, rate limiting is about being a good neighbor to external services. If your application dispatches 10,000 jobs that each call the Stripe API, you will get rate-limited by Stripe regardless. The question is whether you handle that gracefully with your own limits, or let Stripe reject your requests and rely on retries. Proactive rate limiting is almost always better — it reduces failed attempts, keeps your retry queues shallow, and avoids getting your API keys throttled or banned.
+
+Rate limit when:
+
+- The endpoint is public or semi-public (login, registration, contact forms, public APIs)
+- The action triggers expensive side effects (emails, SMS, external API calls, file processing)
+- Abuse of the endpoint has security implications (brute force, enumeration, card testing)
+- Your queued jobs call external services with their own rate limits
+
+Think twice before rate limiting:
+
+- Authenticated CRUD endpoints where authorization already gates access
+- Internal API endpoints consumed only by your own frontend
+- Read-heavy endpoints where caching would solve the performance concern better than throttling
+- Endpoints where legitimate power users regularly hit the limit — the limit is either too low or the wrong solution
+
+The goal is to protect against abuse without punishing normal usage. If legitimate users regularly hit your rate limits, the limits need adjusting or the problem needs a different solution entirely.
+
 ## Summary
 
+- Rate limiting is a defensive tool — apply it where abuse has real consequences (login, payment, public APIs, external service calls), not on every endpoint. If legitimate users regularly hit your limits, the limits need adjusting or the problem needs a different solution.
 - Rate limiting protects your application from both external abuse (HTTP requests) and internal abuse (queued jobs overwhelming third-party APIs).
 - Define named rate limiters in `AppServiceProvider` using `RateLimiter::for()`, then attach them to routes with the `throttle` middleware.
 - Use `->by()` to scope limits per user, IP, or any other key. Return different limits based on user type to give premium users higher thresholds.

@@ -216,7 +216,7 @@ For any authorization tied to an Eloquent model, use a Policy. Policies are auto
 Gates are best for checks that do not involve a specific model instance:
 
 ```php
-// Good use of Gates — no model involved
+// Gates work well when no model is involved
 Gate::define('access-admin', fn (User $user): bool => $user->isAdmin());
 Gate::define('view-analytics', fn (User $user): bool => $user->can('view analytics'));
 Gate::define('send-invitations', fn (User $user): bool => $user->team->hasInvitesRemaining());
@@ -449,12 +449,12 @@ $user->syncRoles(['editor']);           // Replace all roles
 This is the most important rule when working with Spatie Permission: always check permissions, not roles. Roles are an organizational tool for grouping permissions. Your application logic should not care whether someone is an "editor" or an "admin" — it should care whether they can `edit posts`.
 
 ```php
-// Bad: checking roles in business logic
+// Before: checking roles in business logic
 if ($user->hasRole('admin')) {
     // Delete the post...
 }
 
-// Good: checking permissions
+// After: checking permissions
 if ($user->can('delete posts')) {
     // Delete the post...
 }

@@ -9,7 +9,7 @@ This chapter covers the most common database mistakes in Laravel applications an
 The N+1 problem is the most common performance issue in Laravel applications. It happens when you load a collection of models and then access a relationship on each one:
 
 ```php
-// Bad: N+1 — 1 query for orders + N queries for users
+// Before: N+1 — 1 query for orders + N queries for users
 $orders = Order::all();
 foreach ($orders as $order) {
     echo $order->user->name; // Each iteration triggers a query
@@ -21,7 +21,7 @@ If you have 100 orders, this executes 101 queries. With 1,000 orders, it is 1,00
 The fix is eager loading:
 
 ```php
-// Good: 2 queries total — 1 for orders + 1 for users
+// After: 2 queries total — 1 for orders + 1 for users
 $orders = Order::with('user')->get();
 foreach ($orders as $order) {
     echo $order->user->name; // No additional query
@@ -216,10 +216,10 @@ In Laravel 12, when modifying a column, the migration must include all of the at
 // Original column
 $table->string('name')->nullable()->default('guest');
 
-// Bad: modifying without preserving attributes — nullable and default are lost
+// Before: modifying without preserving attributes — nullable and default are lost
 $table->string('name', 100)->change();
 
-// Good: include all original attributes
+// After: include all original attributes
 $table->string('name', 100)->nullable()->default('guest')->change();
 ```
 
@@ -244,13 +244,13 @@ $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete
 Every column you select travels from the database server to PHP. On small tables with a handful of short columns, this is invisible. But imagine a `posts` table where each row has a `body` column containing 50KB of HTML. Loading 200 posts with `Post::all()` transfers 10MB of data when you only need their titles for a sidebar. That transfer consumes memory, saturates your database connection, and slows every request — all for data you never use.
 
 ```php
-// Bad: selects all columns — transfers entire rows including large text fields
+// Before: selects all columns — transfers entire rows including large text fields
 $users = User::all();
 
-// Good: selects only needed columns
+// After: selects only needed columns
 $users = User::select(['id', 'name', 'email'])->get();
 
-// Good: when you need a single column as a key-value pair
+// After: when you need a single column as a key-value pair
 $names = User::pluck('name', 'id');
 ```
 
@@ -329,7 +329,7 @@ Only one model exists in memory at any moment. The trade-off is that the databas
 When you need to update or delete thousands of records, loading each one as an Eloquent model is wasteful. Each model consumes memory, each `save()` fires a separate query, and model events add overhead you may not need. If you are not relying on accessors, mutators, or model events, let the database do the work in a single query:
 
 ```php
-// Bad: loads all models to update them — 5,001 queries for 5,000 matches
+// Before: loads all models to update them — 5,001 queries for 5,000 matches
 $orders = Order::where('status', 'pending')
     ->where('placed_at', '<', now()->subDays(30))
     ->get();
@@ -338,7 +338,7 @@ foreach ($orders as $order) {
     $order->update(['status' => 'cancelled']);
 }
 
-// Good: single query, no models loaded
+// After: single query, no models loaded
 Order::where('status', 'pending')
     ->where('placed_at', '<', now()->subDays(30))
     ->update(['status' => 'cancelled']);
@@ -402,10 +402,10 @@ $table->date('birth_date');         // DATE — for dates without time
 ### Never Use Float for Money
 
 ```php
-// Bad: floating point arithmetic errors
+// Before: floating point arithmetic errors
 $table->float('price');  // 0.1 + 0.2 = 0.30000000000000004
 
-// Good: store as cents (integer) or use decimal
+// After: store as cents (integer) or use decimal
 $table->integer('price_in_cents');
 $table->decimal('price', 10, 2);
 ```
@@ -417,10 +417,10 @@ Floating-point arithmetic is approximate by design. `DECIMAL` stores exact value
 JSON columns are powerful but easy to misuse:
 
 ```php
-// Good: truly flexible, schema-less data
+// After: truly flexible, schema-less data
 $table->json('metadata');  // User preferences, feature flags, API responses
 
-// Bad: structured data that should be its own table
+// Before: structured data that should be its own table
 $table->json('addresses'); // Should be an addresses table with proper columns
 ```
 

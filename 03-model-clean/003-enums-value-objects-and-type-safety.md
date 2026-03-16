@@ -32,7 +32,7 @@ Type-safe code eliminates this:
 ```php
 $order->update(['status' => OrderStatus::Pending]);
 
-// OrderStatus::Pneding — compile-time error, your IDE catches it immediately
+// OrderStatus::Pneding — your IDE catches it immediately
 // OrderStatus::Banana — does not exist, cannot be used
 
 if ($order->status === OrderStatus::Shipped) {
@@ -40,7 +40,7 @@ if ($order->status === OrderStatus::Shipped) {
 }
 ```
 
-The shift is from "hope the string is right" to "the compiler guarantees it is right." Bugs move from runtime (production, customers, 3am alerts) to development time (red squiggly lines in your editor).
+The shift is from "hope the string is right" to "your IDE and static analysis guarantee it is right." Bugs move from runtime (production, customers, 3am alerts) to development time (red squiggly lines in your editor).
 
 ## Backed Enums
 
@@ -176,7 +176,7 @@ enum OrderStatus: string implements HasColor
 }
 ```
 
-Now any component that accepts a `HasColor` works with both `Priority` and `OrderStatus`. The interface enforces that every enum provides the method — if a future developer adds a new `HasColor` enum and forgets `color()`, the code fails to compile.
+Now any component that accepts a `HasColor` works with both `Priority` and `OrderStatus`. The interface enforces that every enum provides the method — if a future developer adds a new `HasColor` enum and forgets `color()`, PHP throws a fatal error.
 
 ## Value Objects
 
@@ -198,7 +198,7 @@ applyDiscount(10.00, 99.99);      // Oops — arguments reversed, negative price
 applyDiscount(99.99, -5.00);      // Negative discount — price goes up?
 ```
 
-The types are technically correct — both arguments are floats — but the types tell you nothing about what the values represent. A price in dollars, a price in cents, a discount percentage, and a discount amount are all `float`. The compiler cannot tell them apart, so you cannot tell them apart at 3am when you are debugging a payment issue.
+The types are technically correct — both arguments are floats — but the types tell you nothing about what the values represent. A price in dollars, a price in cents, a discount percentage, and a discount amount are all `float`. PHP cannot tell them apart, so you cannot tell them apart at 3am when you are debugging a payment issue.
 
 ### The Solution: Value Objects
 
@@ -428,7 +428,7 @@ The State Pattern is the most powerful pattern in this chapter. It replaces comp
 Every application has entities that change state. An order goes from pending to processing to shipped. A subscription goes from trialing to active to cancelled. Without the State Pattern, this logic becomes a tangle of if/else statements:
 
 ```php
-// Bad: conditional logic scattered everywhere
+// Before: conditional logic scattered everywhere
 public function ship(Order $order): void
 {
     if ($order->status === 'pending') {
@@ -623,11 +623,10 @@ class ShipOrderTransition extends Transition
     public function handle(): Order
     {
         $this->order->update([
+            'status' => ShippedState::class,
             'tracking_number' => $this->trackingNumber,
             'shipped_at' => now(),
         ]);
-
-        $this->order->status->transitionTo(ShippedState::class);
 
         event(new OrderShipped($this->order));
 
@@ -713,11 +712,11 @@ For a deeper look at when enums are enough and when to upgrade to the state patt
 7. **Create custom Eloquent casts** for Value Objects — transparent conversion between database and domain
 8. **Use the State Pattern for lifecycle transitions** — when entities move through states with side effects
 9. **Register transitions as classes** — side effects belong in transition classes, not controllers
-10. **Match exhaustiveness catches missing cases** — add a new enum case and the compiler tells you everywhere you forgot to handle it
+10. **Match exhaustiveness catches missing cases** — add a new enum case and PHP throws an error everywhere you forgot to handle it
 
 ## Summary
 
-- Strings are the most dangerous type in your application. Every string comparison is a potential typo, every assignment a potential invalid value. Enums eliminate these bugs at compile time.
+- Strings are the most dangerous type in your application. Every string comparison is a potential typo, every assignment a potential invalid value. Enums eliminate these bugs before they reach production.
 - Backed enums replace magic strings with type-safe constants. They carry their own display logic (`label()`, `color()`, `icon()`), work natively with Eloquent casts, and validate input through `Rule::enum()`.
 - `match` expressions on enums are exhaustive — add a new case and PHP tells you every place you forgot to handle it. `switch` statements on strings fail silently.
 - Value Objects replace primitives with self-validating, immutable domain concepts. A `Money` object enforces non-negative amounts, prevents mixed-currency arithmetic, and formats itself for display.

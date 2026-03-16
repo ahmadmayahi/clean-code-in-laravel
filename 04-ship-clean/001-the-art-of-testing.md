@@ -65,7 +65,7 @@ A feature test boots the entire Laravel application. It has access to the [servi
 
 A unit test does not boot the framework. It tests a single class or function in isolation — pure logic with no dependencies on Laravel. Unit tests are fast but limited in scope.
 
-In a Laravel application, most of your tests will be feature tests. This is by design. Laravel's features — Eloquent, the service container, events, queues — are deeply integrated. Testing them in isolation often means mocking so much that the test no longer reflects reality. As [Adam Wathan](https://adamwathan.me/2016/11/22/using-test-doubles-isnt-testing-the-implementation/) put it: "Write tests. Not too many. Mostly integration."
+In a Laravel application, most of your tests will be feature tests. This is by design. Laravel's features — Eloquent, the service container, events, queues — are deeply integrated. Testing them in isolation often means mocking so much that the test no longer reflects reality. As [Kent C. Dodds](https://kentcdodds.com/blog/write-tests) put it: "Write tests. Not too many. Mostly integration."
 
 Use unit tests for pure logic that has no framework dependencies — a discount calculator, a data transformer, a state machine transition. Use feature tests for everything that touches the framework.
 
@@ -521,17 +521,17 @@ uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 Always use [model factories](https://laravel.com/docs/eloquent-factories) to create test data. Factories are expressive, maintainable, and produce realistic data:
 
 ```php
-// Bad: manual insert — brittle, verbose, missing required columns
+// Before: manual insert — brittle, verbose, missing required columns
 $user = User::create([
     'name' => 'John',
     'email' => 'john@example.com',
     'password' => bcrypt('password'),
 ]);
 
-// Good: factory — fills all required fields automatically
+// After: factory — fills all required fields automatically
 $user = User::factory()->create();
 
-// Good: factory with specific overrides
+// After: factory with specific overrides
 $user = User::factory()->create(['email' => 'john@example.com']);
 ```
 
@@ -590,14 +590,14 @@ tests/
 Test names should describe the scenario and the expected outcome. Read the test name as a sentence:
 
 ```php
-// Good: describes the scenario and expected outcome
+// After: describes the scenario and expected outcome
 it('creates an order with the correct total')
 it('returns a 404 when the order does not exist')
 it('sends a receipt email to the customer')
 it('prevents non-admins from deleting orders')
 it('applies a 20% discount when the coupon is valid')
 
-// Bad: vague, does not describe what is being tested
+// Before: vague, does not describe what is being tested
 it('works correctly')
 it('test order')
 it('handles edge case')
@@ -630,7 +630,7 @@ describe('CreateOrderAction', function (): void {
 Test what your code does, not how it does it. If you refactor the internals without changing the behavior, your tests should still pass:
 
 ```php
-// Bad: coupled to implementation details
+// Before: coupled to implementation details
 it('calls the repository save method', function (): void {
     $repo = $this->mock(OrderRepository::class);
     $repo->shouldReceive('save')->once();
@@ -638,7 +638,7 @@ it('calls the repository save method', function (): void {
     app(CreateOrderAction::class)->execute($data);
 });
 
-// Good: tests the observable outcome
+// After: tests the observable outcome
 it('persists the order to the database', function (): void {
     app(CreateOrderAction::class)->execute($data);
 
@@ -654,12 +654,12 @@ it('persists the order to the database', function (): void {
 When you mock everything, your test only proves that your mocks work — not that your code works. Mock external boundaries (APIs, third-party services) but let your own code run:
 
 ```php
-// Bad: mocking Eloquent — what are you even testing?
+// Before: mocking Eloquent — what are you even testing?
 $this->mock(Order::class)
     ->shouldReceive('create')
     ->andReturn(new Order());
 
-// Good: let Eloquent do its job, assert on the database
+// After: let Eloquent do its job, assert on the database
 $order = app(CreateOrderAction::class)->execute($data);
 
 $this->assertDatabaseHas('orders', ['id' => $order->id]);
@@ -670,7 +670,7 @@ $this->assertDatabaseHas('orders', ['id' => $order->id]);
 A test that asserts every field on every object is brittle. It breaks whenever you add a column, even if the behavior under test has not changed. Assert on what matters for the behavior you are testing:
 
 ```php
-// Bad: asserts everything — breaks when you add a field
+// Before: asserts everything — breaks when you add a field
 expect($order->toArray())->toBe([
     'id' => 1,
     'user_id' => 1,
@@ -680,7 +680,7 @@ expect($order->toArray())->toBe([
     'updated_at' => '...',
 ]);
 
-// Good: asserts only what this test cares about
+// After: asserts only what this test cares about
 expect($order)
     ->user_id->toBe($user->id)
     ->amount_in_cents->toBe(5000);
