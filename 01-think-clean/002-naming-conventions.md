@@ -568,9 +568,9 @@ resources/views/components/
 ```php
 class Invoice
 {
-    public const MAX_LINE_ITEMS = 50;
-    public const DEFAULT_CURRENCY = 'usd';
-    public const TAX_RATE = 0.21;
+    public const int MAX_LINE_ITEMS = 50;
+    public const string DEFAULT_CURRENCY = 'usd';
+    public const float TAX_RATE = 0.21;
 }
 ```
 

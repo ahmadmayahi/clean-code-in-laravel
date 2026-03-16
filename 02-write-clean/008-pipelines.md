@@ -194,17 +194,18 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
-class FilterByStatus
+readonly class FilterByStatus
 {
     public function __construct(
-        private readonly Request $request,
+        private Request $request,
     ) {}
 
     public function handle(Builder $query, Closure $next): mixed
     {
-        if ($this->request->filled('status')) {
-            $query->where('status', $this->request->input('status'));
-        }
+        $query->when(
+            $this->request->filled('status'),
+            fn (Builder $q): Builder => $q->where('status', $this->request->input('status')),
+        );
 
         return $next($query);
     }
@@ -212,21 +213,21 @@ class FilterByStatus
 ```
 
 ```php
-class FilterByDateRange
+readonly class FilterByDateRange
 {
     public function __construct(
-        private readonly Request $request,
+        private Request $request,
     ) {}
 
     public function handle(Builder $query, Closure $next): mixed
     {
-        if ($this->request->filled('from')) {
-            $query->where('created_at', '>=', $this->request->input('from'));
-        }
-
-        if ($this->request->filled('to')) {
-            $query->where('created_at', '<=', $this->request->input('to'));
-        }
+        $query->when(
+            $this->request->filled('from'),
+            fn (Builder $q): Builder => $q->where('created_at', '>=', $this->request->input('from')),
+        )->when(
+            $this->request->filled('to'),
+            fn (Builder $q): Builder => $q->where('created_at', '<=', $this->request->input('to')),
+        );
 
         return $next($query);
     }
@@ -234,13 +235,13 @@ class FilterByDateRange
 ```
 
 ```php
-class SortByField
+readonly class SortByField
 {
     private const array ALLOWED_SORTS = ['created_at', 'total', 'status'];
     private const array ALLOWED_DIRECTIONS = ['asc', 'desc'];
 
     public function __construct(
-        private readonly Request $request,
+        private Request $request,
     ) {}
 
     public function handle(Builder $query, Closure $next): mixed
@@ -248,9 +249,10 @@ class SortByField
         $sort = $this->request->input('sort', 'created_at');
         $direction = $this->request->input('direction', 'desc');
 
-        if (in_array($sort, self::ALLOWED_SORTS, true) && in_array($direction, self::ALLOWED_DIRECTIONS, true)) {
-            $query->orderBy($sort, $direction);
-        }
+        $query->when(
+            in_array($sort, self::ALLOWED_SORTS, true) && in_array($direction, self::ALLOWED_DIRECTIONS, true),
+            fn (Builder $q): Builder => $q->orderBy($sort, $direction),
+        );
 
         return $next($query);
     }

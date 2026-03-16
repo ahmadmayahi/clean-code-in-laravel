@@ -140,7 +140,7 @@ And that is just validation. The same pattern applies across the framework:
 $user = User::findOrFail($id);
 
 // Caching? One line.
-$users = Cache::remember('users', 3600, fn () => User::all());
+$users = Cache::remember('users', 3600, fn (): Collection => User::all());
 
 // File storage? One line.
 $path = $request->file('avatar')->store('avatars');
@@ -176,8 +176,8 @@ class User extends Model
     protected function firstName(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => ucfirst($value),
-            set: fn (string $value) => ucfirst($value),
+            get: fn (string $value): string => ucfirst($value),
+            set: fn (string $value): string => ucfirst($value),
         );
     }
 }

@@ -5,7 +5,7 @@
 <h1 align="center">Clean Code in Laravel</h1>
 
 <p align="center">
-  A practical guide to writing maintainable, readable Laravel applications using PHP 8.4 and Laravel 12.
+  A practical guide to writing maintainable, readable Laravel applications using PHP 8.5 and Laravel 12.
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
   <a href="https://github.com/ahmadmayahi/clean-code-in-laravel/stargazers"><img src="https://img.shields.io/github/stars/ahmadmayahi/clean-code-in-laravel?style=flat-square&color=yellow" alt="Stars"></a>
   <a href="https://github.com/ahmadmayahi/clean-code-in-laravel/network/members"><img src="https://img.shields.io/github/forks/ahmadmayahi/clean-code-in-laravel?style=flat-square" alt="Forks"></a>
   <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel 12">
-  <img src="https://img.shields.io/badge/PHP-8.4-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP 8.4">
+  <img src="https://img.shields.io/badge/PHP-8.5-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP 8.5">
   <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><img src="https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey?style=flat-square" alt="License"></a>
 </p>
 

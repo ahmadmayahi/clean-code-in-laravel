@@ -66,7 +66,7 @@ Load relationships only when needed:
 ```php
 $orders = Order::query()
     ->with(['items.product'])
-    ->when($request->has('include_user'), fn (Builder $q) => $q->with('user'))
+    ->when($request->has('include_user'), fn (Builder $q): Builder => $q->with('user'))
     ->get();
 ```
 
@@ -88,7 +88,7 @@ Laravel 12 supports limiting eagerly loaded records natively:
 
 ```php
 $users = User::with([
-    'posts' => fn (Builder $query) => $query->latest()->limit(5),
+    'posts' => fn (Builder $query): Builder => $query->latest()->limit(5),
 ])->get();
 ```
 
@@ -262,9 +262,7 @@ At some point, every Laravel application needs to process a large dataset — se
 
 ```php
 // Dangerous: loads ALL records into memory simultaneously
-Order::all()->each(function (Order $order): void {
-    $this->processOrder($order);
-});
+Order::all()->each(fn (Order $order): void => $this->processOrder($order));
 ```
 
 `Order::all()` on a table with 100,000 rows creates 100,000 Eloquent model instances in memory at the same time. Each model consumes roughly 2-5KB depending on the number of columns. With 100,000 rows, that is 200-500MB of memory — enough to hit PHP's `memory_limit` and crash your process. Even if it does not crash, holding that much data in memory slows garbage collection and starves other processes.
@@ -277,9 +275,7 @@ Laravel provides three strategies for processing large datasets without loading 
 
 ```php
 Order::chunk(200, function (Collection $orders): void {
-    $orders->each(function (Order $order): void {
-        $this->processOrder($order);
-    });
+    $orders->each(fn (Order $order): void => $this->processOrder($order));
 });
 ```
 
@@ -292,14 +288,12 @@ Use `chunkById()` instead of `chunk()` when the table has an auto-incrementing p
 `lazy()` works like `chunk()` internally — it loads records in batches — but returns a `LazyCollection` instead of requiring a callback. This gives you the full collection API (`filter()`, `map()`, `take()`, etc.) while keeping memory usage low:
 
 ```php
-Order::lazy()->each(function (Order $order): void {
-    $this->processOrder($order);
-});
+Order::lazy()->each(fn (Order $order): void => $this->processOrder($order));
 
 // The real power: chaining collection methods on large datasets
 $highValueOrders = Order::lazy()
-    ->filter(fn (Order $order) => $order->total > 10000)
-    ->map(fn (Order $order) => $order->only(['id', 'total', 'user_id']));
+    ->filter(fn (Order $order): bool => $order->total > 10000)
+    ->map(fn (Order $order): array => $order->only(['id', 'total', 'user_id']));
 ```
 
 Internally, `lazy()` uses `chunkById()` — so it benefits from the same index-based pagination. The difference from `chunk()` is purely ergonomic: you get a fluent collection pipeline instead of nested callbacks. Use `lazy()` when you want to chain collection methods. Use `chunk()` when you need explicit control over batch boundaries (for example, wrapping each batch in a database transaction).
@@ -309,9 +303,7 @@ Internally, `lazy()` uses `chunkById()` — so it benefits from the same index-b
 `cursor()` uses a PHP generator backed by a database cursor. It executes a single query and yields one model at a time, making it the most memory-efficient option:
 
 ```php
-Order::cursor()->each(function (Order $order): void {
-    ProcessOrderJob::dispatch($order);
-});
+Order::cursor()->each(fn (Order $order): void => ProcessOrderJob::dispatch($order));
 ```
 
 Only one model exists in memory at any moment. The trade-off is that the database connection stays open for the entire iteration — if processing each record takes time, you risk hitting your database's connection timeout. `cursor()` is ideal for dispatching queued jobs (fast per-record work) or simple transformations, but not for long-running operations per record.

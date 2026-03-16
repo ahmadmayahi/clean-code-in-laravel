@@ -78,7 +78,7 @@ class OrderBuilder extends Builder
     {
         return $this->where(function (Builder $query) use ($term): void {
             $query->where('order_number', 'like', "%{$term}%")
-                ->orWhereHas('user', fn (Builder $q) => $q->where('name', 'like', "%{$term}%"));
+                ->orWhereHas('user', fn (Builder $q): Builder => $q->where('name', 'like', "%{$term}%"));
         });
     }
 }
@@ -534,8 +534,8 @@ class OrderController extends Controller
     {
         $orders = Order::query()
             ->forUser($request->user()->id)
-            ->when($request->status, fn ($q, $status) => $q->forStatus(OrderStatus::from($status)))
-            ->when($request->search, fn ($q, $term) => $q->search($term))
+            ->when($request->status, fn (OrderQueryBuilder $q, string $status): OrderQueryBuilder => $q->forStatus(OrderStatus::from($status)))
+            ->when($request->search, fn (OrderQueryBuilder $q, string $term): OrderQueryBuilder => $q->search($term))
             ->withItemCount()
             ->latest('placed_at')
             ->paginate(15);

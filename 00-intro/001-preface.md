@@ -42,7 +42,7 @@ AI does not know your application. It does not know that your team puts business
 
 Here is what I have learned from using AI extensively in my own work: **AI is a multiplier, not a replacement.** If you understand clean code principles, AI accelerates you. You can describe what you want, review what it generates, and correct it quickly because you know what good looks like. If you do not understand these principles, AI gives you more code faster — and more mess faster.
 
-Even the most capable models — Claude Opus 4.6, GPT-4.5, whatever comes next — cannot make architectural decisions for you. They cannot decide whether your application needs an Action or whether the logic belongs in the controller. They cannot judge whether a DTO adds clarity or ceremony to your specific use case. They cannot weigh the trade-offs between a package and a hand-rolled solution in the context of your team and your project. These are judgment calls that require understanding, not generation.
+Even the most capable models — Claude Opus 4.6, GPT-5.4, whatever comes next — cannot make architectural decisions for you. They cannot decide whether your application needs an Action or whether the logic belongs in the controller. They cannot judge whether a DTO adds clarity or ceremony to your specific use case. They cannot weigh the trade-offs between a package and a hand-rolled solution in the context of your team and your project. These are judgment calls that require understanding, not generation.
 
 This book teaches you the understanding. Once you have it, use AI as much as you want. Direct it, review it, correct it. You will write better code faster than either you or the AI could alone. But the understanding comes first. Without it, you are just generating confident-looking code that you cannot evaluate.
 
@@ -50,6 +50,4 @@ This book teaches you the understanding. Once you have it, use AI as much as you
 
 We start with how to think about clean code — simplicity, naming, dependency injection. Then we move into writing clean Laravel code — controllers, actions, DTOs, jobs, APIs. After that, we cover models and database patterns. Finally, we tie it all together with testing.
 
-Every example uses Laravel 12 and PHP 8.4. No outdated patterns, no deprecated features.
-
-This book is short on purpose. If a concept does not make your code better, it is not here.
+Every example uses Laravel 12 and PHP 8.5. No outdated patterns, no deprecated features.

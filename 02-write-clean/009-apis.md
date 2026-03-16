@@ -101,19 +101,11 @@ API consumers need flexibility. A mobile app wants orders sorted by date. A dash
 
 ```php
 // This gets out of hand fast
-$query = Order::query();
-
-if ($request->has('status')) {
-    $query->where('status', $request->input('status'));
-}
-
-if ($request->has('sort')) {
-    $query->orderBy($request->input('sort'), $request->input('direction', 'asc'));
-}
-
-if ($request->has('include') && $request->input('include') === 'items') {
-    $query->with('items');
-}
+$orders = Order::query()
+    ->when($request->has('status'), fn (Builder $q): Builder => $q->where('status', $request->input('status')))
+    ->when($request->has('sort'), fn (Builder $q): Builder => $q->orderBy($request->input('sort'), $request->input('direction', 'asc')))
+    ->when($request->input('include') === 'items', fn (Builder $q): Builder => $q->with('items'))
+    ->get();
 
 // And on and on for every parameter...
 ```

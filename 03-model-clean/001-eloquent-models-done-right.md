@@ -363,14 +363,14 @@ public function scopeReadyToShip(Builder $query): void
 {
     $query->where('status', OrderStatus::Paid)
         ->where('is_active', true)
-        ->whereHas('items', fn (Builder $q) => $q->where('in_stock', true));
+        ->whereHas('items', fn (Builder $q): Builder => $q->where('in_stock', true));
 }
 
 // After: compose simple scopes
 Order::query()
     ->forStatus(OrderStatus::Paid)
     ->active()
-    ->whereHas('items', fn (Builder $q) => $q->where('in_stock', true))
+    ->whereHas('items', fn (Builder $q): Builder => $q->where('in_stock', true))
     ->get();
 ```
 
@@ -571,9 +571,7 @@ class CancelOrderAction
     {
         $order->update(['status' => OrderStatus::Cancelled]);
 
-        $order->items->each(function (OrderItem $item): void {
-            $item->product->increment('stock', $item->quantity);
-        });
+        $order->items->each(fn (OrderItem $item): void => $item->product->increment('stock', $item->quantity));
 
         $order->user->notify(new OrderCancelledNotification($order));
 
@@ -759,7 +757,7 @@ class Order extends Model
     use HasFactory, SoftDeletes;
 
     // 2. Constants
-    public const MAX_ITEMS = 50;
+    public const int MAX_ITEMS = 50;
 
     // 3. Properties ($fillable, $guarded, $table, $with, etc.)
     protected $fillable = [/* ... */];
