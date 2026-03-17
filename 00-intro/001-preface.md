@@ -50,4 +50,4 @@ This book teaches you the understanding. Once you have it, use AI as much as you
 
 We start with how to think about clean code — simplicity, naming, dependency injection. Then we move into writing clean Laravel code — controllers, actions, DTOs, jobs, APIs. After that, we cover models and database patterns. Finally, we tie it all together with testing.
 
-Every example uses Laravel 12 and PHP 8.5. No outdated patterns, no deprecated features.
+Every example uses Laravel 13 and PHP 8.5. No outdated patterns, no deprecated features.

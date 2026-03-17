@@ -341,7 +341,7 @@ These three questions will guide every decision in this book. When we discuss [A
 
 This book is not a Laravel tutorial. It assumes you already know how to build Laravel applications - you understand routing, controllers, Eloquent, Blade, and the basics of the framework.
 
-This book is about how to build Laravel applications well. It is a style guide, an architecture guide, and a philosophy guide - all grounded in practical, real-world code examples using Laravel 12. Every pattern we discuss, every convention we recommend, and every package we introduce serves one purpose: making your code simpler, clearer, and more maintainable.
+This book is about how to build Laravel applications well. It is a style guide, an architecture guide, and a philosophy guide - all grounded in practical, real-world code examples using Laravel 13. Every pattern we discuss, every convention we recommend, and every package we introduce serves one purpose: making your code simpler, clearer, and more maintainable.
 
 We start with the small things - naming, code style, controller structure - and gradually build toward larger architectural patterns like Domain-Driven Design and Event Sourcing. Each chapter builds on the previous one. No concept is used before it is explained.
 

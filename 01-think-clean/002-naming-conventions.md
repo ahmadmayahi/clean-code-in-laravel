@@ -487,7 +487,7 @@ When you read `class User extends Model` followed by `use HasSubscription, Searc
 
 ## Scopes
 
-[Eloquent scopes](https://laravel.com/docs/eloquent#query-scopes) define reusable query constraints on a model. In Laravel 12, scopes use the `#[Scope]` attribute on a `protected` method:
+[Eloquent scopes](https://laravel.com/docs/eloquent#query-scopes) define reusable query constraints on a model. Scopes are defined using the `#[Scope]` PHP attribute:
 
 ```php
 use Illuminate\Database\Eloquent\Attributes\Scope;

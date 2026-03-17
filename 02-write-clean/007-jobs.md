@@ -21,7 +21,9 @@ use App\Models\Order;
 use App\Services\Payment\StripePaymentService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Attributes\Queue;
 
+#[Queue('payments')]
 class ProcessOrderPaymentJob implements ShouldQueue
 {
     use Queueable;
@@ -129,14 +131,18 @@ Without failure handling, a Job that throws an exception simply disappears into 
 Laravel gives you control over what happens when things go wrong — how many times to retry, how long to wait between attempts, and what to do when all retries are exhausted:
 
 ```php
+use Illuminate\Queue\Attributes\Tries;
+use Illuminate\Queue\Attributes\Backoff;
+use Illuminate\Queue\Attributes\Timeout;
+use Illuminate\Queue\Attributes\MaxExceptions;
+
+#[Tries(3)]
+#[Backoff(60)]
+#[Timeout(120)]
+#[MaxExceptions(2)]
 class ProcessOrderPaymentJob implements ShouldQueue
 {
     use Queueable;
-
-    public int $tries = 3;                    // Retry up to 3 times
-    public int $backoff = 60;                 // Wait 60 seconds between retries
-    public int $timeout = 120;                // Kill the job after 2 minutes
-    public int $maxExceptions = 2;            // Stop retrying after 2 exceptions
 
     public function __construct(
         private readonly Order $order,
@@ -159,7 +165,7 @@ class ProcessOrderPaymentJob implements ShouldQueue
 
     public function retryUntil(): DateTime
     {
-        // Alternative to $tries: retry for up to 5 minutes
+        // Alternative to #[Tries]: retry for up to 5 minutes
         return now()->addMinutes(5);
     }
 }
@@ -172,11 +178,12 @@ Sometimes a Job cannot do its work right now, but it is not failing either. The 
 The `$this->release()` method puts the Job back on the queue with an optional delay. Unlike a failure and retry, you are making a deliberate decision: "not now, but soon." The Job's attempt count increments, and it re-enters the queue as if it were freshly dispatched:
 
 ```php
+use Illuminate\Queue\Attributes\Tries;
+
+#[Tries(5)]
 class ProcessRefundJob implements ShouldQueue
 {
     use Queueable;
-
-    public int $tries = 5;
 
     public function __construct(
         private readonly Order $order,
@@ -238,7 +245,7 @@ The difference between `$this->release()` and letting a Job fail matters. Both i
 | **Logs** | No error logged | Exception logged |
 | **Best for** | Preconditions, rate limits, locks | Actual errors — timeouts, bad responses, bugs |
 
-Be mindful that each release still counts as an attempt against `$tries`. If you expect many releases before the work succeeds, use `retryUntil()` instead of `$tries` to avoid running out of attempts:
+Be mindful that each release still counts as an attempt against `#[Tries]`. If you expect many releases before the work succeeds, use `retryUntil()` instead of `#[Tries]` to avoid running out of attempts:
 
 ```php
 public function retryUntil(): DateTime
@@ -503,7 +510,7 @@ class CallExternalApiJob implements ShouldQueue
 }
 ```
 
-When a Job exceeds the rate limit, it is released back to the queue with an appropriate delay. This consumes an attempt, so set your `$tries` high enough or use `retryUntil()` instead. If you are using Redis, prefer `RateLimitedWithRedis` — it is more efficient and fine-tuned for Redis's atomic operations.
+When a Job exceeds the rate limit, it is released back to the queue with an appropriate delay. This consumes an attempt, so set your `#[Tries]` high enough or use `retryUntil()` instead. If you are using Redis, prefer `RateLimitedWithRedis` — it is more efficient and fine-tuned for Redis's atomic operations.
 
 ### Throttling Exceptions
 
@@ -582,12 +589,13 @@ This is cleaner than adding guard clauses at the top of `handle()` for condition
 Some exceptions are transient (API timeouts, rate limits) and worth retrying. Others are permanent (invalid credentials, authorization failures) and retrying them is pointless. `FailOnException` lets you short-circuit retries for exceptions that will never succeed:
 
 ```php
+use Illuminate\Queue\Attributes\Tries;
 use Illuminate\Queue\Middleware\FailOnException;
 use Illuminate\Auth\Access\AuthorizationException;
 
+#[Tries(5)]
 class SyncChatHistoryJob implements ShouldQueue
 {
-    public int $tries = 5;
 
     public function middleware(): array
     {
@@ -670,10 +678,11 @@ These are the problems unique Jobs solve. By implementing `ShouldBeUnique`, Lara
 
 ```php
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Attributes\UniqueFor;
 
+#[UniqueFor(3600)]
 class GenerateMonthlyReportJob implements ShouldQueue, ShouldBeUnique
 {
-    public int $uniqueFor = 3600; // Unique for 1 hour
 
     public function __construct(
         private readonly int $userId,
@@ -692,7 +701,7 @@ class GenerateMonthlyReportJob implements ShouldQueue, ShouldBeUnique
 }
 ```
 
-The `uniqueId()` method defines *what* makes the Job unique. In this example, a report for user 5 in March is a different Job than a report for user 5 in April. The `$uniqueFor` property sets how long the lock lasts — after one hour, the same Job can be dispatched again even if the original never completed.
+The `uniqueId()` method defines *what* makes the Job unique. In this example, a report for user 5 in March is a different Job than a report for user 5 in April. The `#[UniqueFor]` attribute sets how long the lock lasts — after one hour, the same Job can be dispatched again even if the original never completed.
 
 By default, the unique lock is held until the Job finishes processing or fails all its retry attempts. If you want the lock released as soon as a worker *picks up* the Job — allowing another instance to be queued while the first is still running — implement `ShouldBeUniqueUntilProcessing` instead:
 
@@ -980,7 +989,7 @@ Avoid mutable static state in classes used by Jobs, or clear it explicitly. Bett
 1. **Implement `ShouldQueue`** — without it, the Job runs synchronously
 2. **Make Jobs self-contained** — capture all necessary state at dispatch time, not inside `handle()`
 3. **Design for idempotency** — guard against double-processing with status checks and upserts
-4. **Set `$tries` and `$backoff`** — always plan for failure
+4. **Set `#[Tries]` and `#[Backoff]`** — always plan for failure
 5. **Implement `failed()`** — notify someone when a Job permanently fails
 6. **Use `afterCommit()`** when dispatching inside transactions — prevent Jobs from referencing uncommitted data
 7. **Use the `Queueable` trait** — it combines `Dispatchable`, `InteractsWithQueue`, `Queueable`, and `SerializesModels` into a single import
@@ -1001,7 +1010,7 @@ Avoid mutable static state in classes used by Jobs, or clear it explicitly. Bett
 - A Job's `handle()` method receives dependencies through Laravel's container. The constructor receives only data, which is serialized into the queue. Never inject services through the constructor.
 - Design every Job for idempotency. Guard against double-processing with status checks at the top of `handle()`, and prefer `updateOrCreate()` or `upsert()` over `create()`.
 - Use `afterCommit()` when dispatching Jobs inside database transactions. Without it, the Job might start processing before the transaction commits — or reference data from a rolled-back transaction.
-- Use `$this->release()` when a Job cannot do its work right now but is not failing — a precondition has not been met, a rate limit was hit, or a resource is locked. Release puts the Job back on the queue with a delay instead of wasting retries on exceptions. Use `retryUntil()` instead of `$tries` when you expect multiple releases.
+- Use `$this->release()` when a Job cannot do its work right now but is not failing — a precondition has not been met, a rate limit was hit, or a resource is locked. Release puts the Job back on the queue with a delay instead of wasting retries on exceptions. Use `retryUntil()` instead of `#[Tries]` when you expect multiple releases.
 - For distributed rate limiting across workers, use `Redis::throttle()` to control how many Jobs run per time window, or `Redis::funnel()` to limit concurrent executions. Both coordinate across all workers via Redis locks, and Jobs that cannot acquire a slot are released back to the queue.
 - Job middleware (`WithoutOverlapping`, `RateLimited`, `ThrottlesExceptions`, `Skip`, `FailOnException`) keeps cross-cutting concerns out of `handle()`. Write custom middleware when the built-in options do not fit.
 - `ShouldBeUnique` prevents duplicate Jobs from entering the queue — the duplicate is silently discarded at dispatch time. `WithoutOverlapping` prevents concurrent execution — duplicates are queued but wait their turn. Use both together when you need to prevent queuing *and* protect against concurrent execution.

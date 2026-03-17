@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Enums\OrderStatus;
 use App\Support\Casts\MoneyCast;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,21 +21,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[Fillable(['user_id', 'shipping_address_id', 'subtotal', 'tax', 'discount', 'total', 'status', 'notes', 'placed_at'])]
 class Order extends Model
 {
     use HasFactory, SoftDeletes;
-
-    protected $fillable = [
-        'user_id',
-        'shipping_address_id',
-        'subtotal',
-        'tax',
-        'discount',
-        'total',
-        'status',
-        'notes',
-        'placed_at',
-    ];
 
     protected function casts(): array
     {
@@ -86,11 +76,11 @@ class Order extends Model
 
 Notice what this model does **not** contain: no email sending, no PDF generation, no complex business logic. It defines the data shape, the relationships, and a few computed properties. That is all.
 
-The structure follows a consistent order: traits, properties, casts, relationships, accessors, scopes. This ordering is a convention — not a rule — but consistency within a project makes models predictable. When a developer opens any model, they know where to find what they are looking for.
+The structure follows a consistent order: attributes, traits, properties, casts, relationships, accessors, scopes. This ordering is a convention — not a rule — but consistency within a project makes models predictable. When a developer opens any model, they know where to find what they are looking for.
 
 ## The `casts()` Method
 
-Laravel 12 uses the `casts()` method instead of the `$casts` property. The method approach is more flexible because it can use constructor arguments and conditional logic:
+Laravel uses the `casts()` method instead of the `$casts` property. The method approach is more flexible because it can use constructor arguments and conditional logic:
 
 ```php
 protected function casts(): array
@@ -253,7 +243,7 @@ This breaks eager loading, caching, and makes the relationship unpredictable. A 
 
 ## Accessors and Mutators
 
-Laravel 12 uses the `Attribute` class for accessors and mutators:
+Laravel uses the `Attribute` class for accessors and mutators:
 
 ```php
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -452,36 +442,28 @@ The guidelines are:
 
 When model events become complex enough that you are spending more time managing their side effects than benefiting from the automation, consider dispatching domain events explicitly from [Actions](/books/clean-code-in-laravel/actions) instead. Explicit is better than magic.
 
-## `$fillable` vs. `$guarded`
+## `#[Fillable]` vs. `#[Guarded]`
 
-Laravel protects against mass assignment — accidentally setting columns that should not be user-controlled — using either `$fillable` (a whitelist) or `$guarded` (a blacklist). Both approaches work, and both are valid. What matters is that your team picks one and uses it consistently.
+Laravel protects against mass assignment — accidentally setting columns that should not be user-controlled — using either `#[Fillable]` (a whitelist) or `#[Guarded]` (a blacklist). Both approaches work, and both are valid. What matters is that your team picks one and uses it consistently.
 
-### The `$fillable` Approach
+### The `#[Fillable]` Approach
 
 List every column that can be mass-assigned:
 
 ```php
-protected $fillable = [
-    'user_id',
-    'shipping_address_id',
-    'subtotal',
-    'tax',
-    'discount',
-    'total',
-    'status',
-    'notes',
-    'placed_at',
-];
+#[Fillable(['user_id', 'shipping_address_id', 'subtotal', 'tax', 'discount', 'total', 'status', 'notes', 'placed_at'])]
+class Order extends Model {}
 ```
 
-The advantage is explicitness. A new column is not mass-assignable until you add it to the list. The downside is maintenance — every migration that adds a column requires updating `$fillable` too, and forgetting to do so produces a silent bug where the column is never set.
+The advantage is explicitness. A new column is not mass-assignable until you add it to the list. The downside is maintenance — every migration that adds a column requires updating `#[Fillable]` too, and forgetting to do so produces a silent bug where the column is never set.
 
-### The `$guarded` Approach
+### The `#[Guarded]` Approach
 
 List the columns that should *never* be mass-assigned:
 
 ```php
-protected $guarded = ['id'];
+#[Guarded(['id'])]
+class Order extends Model {}
 ```
 
 This is the approach Taylor Otwell uses in most of his projects. Every column is mass-assignable by default, and you only guard the ones that must be protected — typically just the primary key. The advantage is less boilerplate and no "forgot to add to fillable" bugs. The trade-off is that a new column is automatically mass-assignable, which requires that your [Form Requests](/books/clean-code-in-laravel/form-requests-and-validation) properly validate every incoming field.
@@ -751,6 +733,7 @@ Factory states are reusable across your test suite. If the definition of "paid" 
 A consistent internal structure makes models predictable. Here is the ordering convention used in this book:
 
 ```php
+#[Fillable([/* ... */])]
 class Order extends Model
 {
     // 1. Traits
@@ -759,23 +742,20 @@ class Order extends Model
     // 2. Constants
     public const int MAX_ITEMS = 50;
 
-    // 3. Properties ($fillable, $guarded, $table, $with, etc.)
-    protected $fillable = [/* ... */];
-
-    // 4. Casts
+    // 3. Casts
     protected function casts(): array { /* ... */ }
 
-    // 5. Relationships
+    // 4. Relationships
     public function user(): BelongsTo { /* ... */ }
     public function items(): HasMany { /* ... */ }
 
-    // 6. Accessors and Mutators
+    // 5. Accessors and Mutators
     protected function fullName(): Attribute { /* ... */ }
 
-    // 7. Scopes
+    // 6. Scopes
     public function scopeActive(Builder $query): void { /* ... */ }
 
-    // 8. Model events
+    // 7. Model events
     protected static function booted(): void { /* ... */ }
 }
 ```
@@ -804,10 +784,10 @@ This is not a Laravel requirement — it is a readability convention. When every
 - When you need to query, sort, or index a derived value, use a database generated column instead of an accessor. Generated columns are computed by the database and are visible to queries and indexes. Use `VIRTUAL` for computed-on-read values and `STORED` for indexable ones.
 - Scopes should apply one constraint each and compose cleanly. When a model accumulates more than five or six scopes, extract them into a [Custom Query Builder](/books/clean-code-in-laravel/custom-query-builders-and-collections).
 - Model events are for data integrity — generating defaults and cascading deletes. Observers are for side effects — notifications and syncs. Neither should contain business logic or orchestration.
-- Both `$fillable` and `$guarded` are valid approaches to mass assignment protection. Choose one and be consistent. Either way, [Form Requests](/books/clean-code-in-laravel/form-requests-and-validation) are your primary line of defense for input validation.
+- Both `#[Fillable]` and `#[Guarded]` are valid approaches to mass assignment protection. Choose one and be consistent. Either way, [Form Requests](/books/clean-code-in-laravel/form-requests-and-validation) are your primary line of defense for input validation.
 - Keep models lean by extracting behavior into Concerns, promoting scopes to query builders, and moving business logic to Actions. The model is not the right home for orchestration, external API calls, or presentation formatting.
 - Test models at the data layer: relationships, casts, accessors, and scopes. Use factories with expressive states to make test setup readable and reusable.
-- Follow a consistent internal ordering convention — traits, constants, properties, casts, relationships, accessors, scopes, events — so every model in the project is predictable.
+- Follow a consistent internal ordering convention — attributes, traits, constants, casts, relationships, accessors, scopes, events — so every model in the project is predictable.
 
 ## References
 

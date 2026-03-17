@@ -201,6 +201,9 @@ Real-world forms are rarely static. A "company" field might only be required for
 The simplest approach is `required_if` and `exclude_if`:
 
 ```php
+use Illuminate\Foundation\Http\Attributes\StopOnFirstFailure;
+
+#[StopOnFirstFailure]
 class StoreRegistrationRequest extends FormRequest
 {
     public function rules(): array

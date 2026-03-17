@@ -10,7 +10,7 @@ Here is what to aim for:
 
 - **Start with the problem.** Show the messy or naive approach first, then introduce the clean version. The reader should feel the pain before seeing the cure.
 - **Explain the why, not just the what.** "Use Actions" is not useful. "Use Actions because they give you a single place to test business logic without HTTP overhead" is.
-- **Use Laravel 12 and PHP 8.4.** Constructor property promotion, enums, match expressions, typed properties — use modern PHP. No legacy patterns.
+- **Use Laravel 13 and PHP 8.5.** Constructor property promotion, enums, match expressions, typed properties — use modern PHP. No legacy patterns.
 - **Keep examples realistic.** Orders, users, subscriptions, payments — things that exist in real applications.
 - **Skip the obvious.** Do not explain what a controller is. The reader already knows Laravel. Explain what makes a controller *clean*.
 
@@ -29,7 +29,7 @@ The book's style is:
 - Short sentences, short paragraphs
 - Every section starts with the problem (messy code), then shows the clean solution
 - Code examples use realistic scenarios (orders, users, payments), not FooBar
-- Uses Laravel 12 and PHP 8.5 features (constructor property promotion, enums, match, typed properties)
+- Uses Laravel 13 and PHP 8.5 features (constructor property promotion, enums, match, typed properties)
 - Explains WHY a pattern matters, not just HOW to use it
 - No bold in paragraphs — bold is for list item labels and headings only
 - References link to official docs or well-known community articles

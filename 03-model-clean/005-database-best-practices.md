@@ -84,7 +84,7 @@ This adds a subquery to the original query instead of loading the entire relatio
 
 ### Limiting Eager Loaded Records
 
-Laravel 12 supports limiting eagerly loaded records natively:
+Laravel supports limiting eagerly loaded records natively:
 
 ```php
 $users = User::with([
@@ -210,7 +210,7 @@ The alternative is **forward-only migrations**: instead of rolling back, you wri
 
 ### Preserve All Column Attributes When Modifying
 
-In Laravel 12, when modifying a column, the migration must include all of the attributes that were previously defined on the column. Otherwise, they will be dropped:
+When modifying a column, the migration must include all of the attributes that were previously defined on the column. Otherwise, they will be dropped:
 
 ```php
 // Original column
@@ -424,7 +424,7 @@ JSON columns cannot be efficiently indexed (except with generated columns), cann
 2. **Eager load relationships** — use `with()` for every relationship you access
 3. **Index filtered and sorted columns** — check your `WHERE` and `ORDER BY` clauses
 4. **Decide on a down migration strategy** — use `down()` for local iteration, or go forward-only in production
-5. **Preserve column attributes** — when modifying columns in Laravel 12, include all original attributes
+5. **Preserve column attributes** — when modifying columns, include all original attributes
 6. **Use foreign key constraints** — data integrity at the database level
 7. **Select only needed columns** — do not load entire rows when you need one field
 8. **Chunk large datasets** — never load millions of rows into memory
@@ -435,10 +435,10 @@ JSON columns cannot be efficiently indexed (except with generated columns), cann
 ## Summary
 
 - The N+1 problem is the most common performance issue in Laravel. `Model::preventLazyLoading()` in development catches it before production. Use `with()` to eager load every relationship you access.
-- Eager loading supports nested relationships (`items.product.category`), conditional loading (`when()`), count-only loading (`withCount()`), and limiting loaded records (`limit()` in Laravel 12).
+- Eager loading supports nested relationships (`items.product.category`), conditional loading (`when()`), count-only loading (`withCount()`), and limiting loaded records (`limit()`).
 - Indexes make the difference between a 500ms query and a 2ms query. Index columns used in `WHERE`, `ORDER BY`, and `GROUP BY` clauses. Composite index column order matters — the "leftmost prefix" rule determines which queries can use the index.
 - Use unique indexes to enforce data integrity at the database level, not just in validation. Race conditions can bypass validation; they cannot bypass a unique index.
-- Down migrations are a trade-off: `down()` enables local rollbacks for fast iteration, but in production it is untested code that can destroy data created after the migration ran. Many teams use forward-only migrations — fixing mistakes by writing a new migration that moves forward rather than reversing history. In Laravel 12, column modifications must include all original attributes or they are silently dropped.
+- Down migrations are a trade-off: `down()` enables local rollbacks for fast iteration, but in production it is untested code that can destroy data created after the migration ran. Many teams use forward-only migrations — fixing mistakes by writing a new migration that moves forward rather than reversing history. Column modifications must include all original attributes or they are silently dropped.
 - Foreign key constraints with `cascadeOnDelete()` or `nullOnDelete()` prevent orphaned records. Data integrity belongs at the database level, not the application level.
 - Use `select()` to avoid transferring unnecessary data. For large datasets, `chunk()` and `chunkById()` process fixed-size batches, `lazy()` provides a fluent `LazyCollection` API over batches, and `cursor()` yields one model at a time using a PHP generator. Each trades query count for memory efficiency. Use bulk operations (`update()`, `delete()`, `increment()`) to avoid loading models you only need to modify — but remember they bypass model events.
 - Never use `float` for money — use `decimal` or store values as integers (cents). Use JSON columns for truly schema-less data, not for structured data that should be its own table.

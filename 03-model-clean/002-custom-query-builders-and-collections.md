@@ -10,7 +10,7 @@ Custom Query Builders solve this by extracting all query logic into a dedicated 
 
 A Custom Query Builder is a class that extends `Illuminate\Database\Eloquent\Builder` and contains all the query methods for a specific model. Instead of `scopeActive()` on the model, you write `active()` on the builder — a regular method with a typed return, full IDE autocompletion, and no `scope` prefix magic.
 
-Laravel 12 provides the `#[UseEloquentBuilder]` attribute to bind a builder to a model:
+Laravel provides the `#[UseEloquentBuilder]` attribute to bind a builder to a model:
 
 ```php
 namespace App\Builders;
@@ -231,7 +231,7 @@ This is cleaner than duplicating `scopeActive()` on every model, and it makes th
 
 Just as Custom Query Builders handle how you **query** data, Custom Collections handle how you **work with** the results. A Custom Collection is a class that extends `Illuminate\Database\Eloquent\Collection` and adds domain-specific methods for in-memory operations on data you have already fetched.
 
-Laravel 12 provides the `#[CollectedBy]` attribute:
+Laravel provides the `#[CollectedBy]` attribute:
 
 ```php
 namespace App\Collections;
