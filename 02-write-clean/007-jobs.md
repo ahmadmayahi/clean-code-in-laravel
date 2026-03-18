@@ -238,12 +238,9 @@ This is cleaner than letting the exception propagate — you respect the API's i
 
 The difference between `$this->release()` and letting a Job fail matters. Both increment the attempt counter, but they signal different things:
 
-| | `$this->release()` | Exception (failure) |
-|---|---|---|
-| **Intent** | "Try again later — nothing is wrong" | "Something broke" |
-| **`failed()` called?** | No | Yes, after all retries are exhausted |
-| **Logs** | No error logged | Exception logged |
-| **Best for** | Preconditions, rate limits, locks | Actual errors — timeouts, bad responses, bugs |
+**`$this->release()`** signals "try again later — nothing is wrong." The `failed()` method is not called, no error is logged, and the Job re-enters the queue. Use it for preconditions, rate limits, and locks.
+
+**Letting the Job throw an exception** signals "something broke." The exception is logged, and after all retries are exhausted, `failed()` is called. Use it for actual errors — timeouts, bad responses, bugs.
 
 Be mindful that each release still counts as an attempt against `#[Tries]`. If you expect many releases before the work succeeds, use `retryUntil()` instead of `#[Tries]` to avoid running out of attempts:
 
@@ -344,11 +341,9 @@ class GenerateExternalReportJob implements ShouldQueue
 
 The difference from `throttle()` is subtle but important. `throttle('key')->allow(3)->every(60)` means "3 Jobs per minute" — once 3 have run, no more can start until the minute resets, even if they all finished in 2 seconds. `funnel('key')->limit(3)` means "3 at a time" — the moment one finishes, another can start immediately.
 
-| | `Redis::throttle()` | `Redis::funnel()` |
-|---|---|---|
-| **Controls** | Jobs per time window | Concurrent Jobs |
-| **Use when** | API has a rate limit (e.g., 100 requests/minute) | Service has a concurrency limit (e.g., 3 simultaneous connections) |
-| **Slot freed** | After the time window resets | As soon as a Job finishes |
+**`Redis::throttle()`** controls Jobs per time window. A slot frees up after the window resets. Use it when the API has a rate limit (e.g., 100 requests/minute).
+
+**`Redis::funnel()`** controls concurrent Jobs. A slot frees up as soon as a Job finishes. Use it when the service has a concurrency limit (e.g., 3 simultaneous connections).
 
 ### Throttle vs. RateLimited Middleware
 
@@ -719,12 +714,9 @@ class SyncInventoryJob implements ShouldQueue, ShouldBeUniqueUntilProcessing
 
 `ShouldBeUnique` and `WithoutOverlapping` both prevent duplicate work, but they operate at different stages and solve different problems:
 
-| | `ShouldBeUnique` | `WithoutOverlapping` |
-|---|---|---|
-| **When it acts** | At dispatch time — prevents the Job from entering the queue | At execution time — prevents the Job from running |
-| **Duplicates on queue** | No — only one instance exists on the queue | Yes — multiple instances can sit on the queue |
-| **What happens to duplicates** | Silently discarded, never queued | Released back to the queue (or discarded with `dontRelease()`) |
-| **Best for** | Preventing wasted queue space (reports, syncs, exports) | Protecting shared resources (one sync per user at a time) |
+**`ShouldBeUnique`** acts at dispatch time — it prevents the Job from entering the queue at all. Only one instance exists on the queue; duplicates are silently discarded. Use it to prevent wasted queue space (reports, syncs, exports).
+
+**`WithoutOverlapping`** acts at execution time — it prevents the Job from running concurrently. Multiple instances can sit on the queue, but duplicates are released back (or discarded with `dontRelease()`). Use it to protect shared resources (one sync per user at a time).
 
 Use `ShouldBeUnique` when the Job itself is redundant — generating the same report twice is pointless. Use `WithoutOverlapping` when the Job is valid but must not run concurrently — two syncs for the same user running simultaneously could corrupt data, but queuing the second one to run after the first finishes is fine.
 
@@ -777,11 +769,11 @@ app/Jobs/
 
 When you need to "do something" in Laravel, you have three options: an [Action](/books/clean-code-in-laravel/actions), a Job, or an Event Listener. They overlap in purpose, and choosing the wrong one leads to awkward code — an Action that does not return anything, a Job that needs to return a value, or a Listener that triggers a chain of unrelated side effects:
 
-| Pattern | Execution | Returns Value | Use When |
-|---|---|---|---|
-| [Action](/books/clean-code-in-laravel/actions) | Synchronous | Yes | User-facing operations that need an immediate result |
-| Job | Asynchronous | No | Background work that can happen later |
-| Listener | Either | No | Reacting to an event that already happened |
+An **[Action](/books/clean-code-in-laravel/actions)** runs synchronously and returns a value. Use it for user-facing operations that need an immediate result.
+
+A **Job** runs asynchronously and does not return a value. Use it for background work that can happen later.
+
+A **Listener** runs either way and does not return a value. Use it for reacting to an event that already happened.
 
 A common pattern is: an [Action](/books/clean-code-in-laravel/actions) performs the core operation synchronously, then dispatches Jobs for the background work:
 

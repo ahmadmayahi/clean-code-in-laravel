@@ -223,13 +223,9 @@ An Action performs a single, discrete operation. It has one public method - `exe
 
 A [Service](/books/clean-code-in-laravel/organizing-your-application#services) provides a stateless utility or wraps an external integration. It exposes multiple methods that share a common dependency or configuration. Think of it as a tool: `PaymentGateway`, `Geocoder`, `CurrencyConverter`.
 
-| Aspect             | Action                           | Service                            |
-| ------------------ | -------------------------------- | ---------------------------------- |
-| Purpose        | Perform a business operation     | Provide a utility or integration   |
-| Methods        | Single `execute()`               | Multiple related methods           |
-| Naming         | Verb + Noun: `CreateOrderAction` | Noun: `PaymentGateway`             |
-| State          | Stateless per call               | Stateless, shared configuration    |
-| Growth         | Stays focused by design          | Grows with the integration it wraps |
+An **Action** performs a business operation. It has a single `execute()` method, is named as a verb + noun (`CreateOrderAction`), is stateless per call, and stays focused by design.
+
+A **Service** provides a utility or integration. It exposes multiple related methods, is named as a noun (`PaymentGateway`), shares configuration across calls, and grows with the integration it wraps.
 
 ### When to Use an Action
 

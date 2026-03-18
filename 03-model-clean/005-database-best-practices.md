@@ -310,11 +310,11 @@ Only one model exists in memory at any moment. The trade-off is that the databas
 
 #### Which One Should You Use?
 
-| Strategy | Memory | Queries | Best For |
-|---|---|---|---|
-| `chunk()` / `chunkById()` | Batch size | Many (N / batch size) | Batch operations, transactional batches |
-| `lazy()` | Batch size | Many (N / batch size) | Fluent collection pipelines on large datasets |
-| `cursor()` | Single model | One | Dispatching jobs, simple transforms, exports |
+**`chunk()` / `chunkById()`** — memory usage equals the batch size, runs many queries (N / batch size). Best for batch operations and transactional batches.
+
+**`lazy()`** — same memory and query profile as chunking, but returns a fluent `LazyCollection`. Best for collection pipelines on large datasets.
+
+**`cursor()`** — holds a single model in memory and runs one query. Best for dispatching Jobs, simple transforms, and exports.
 
 ### Use Database-Level Operations
 

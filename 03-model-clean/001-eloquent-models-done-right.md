@@ -568,16 +568,14 @@ The model's `cancel()` method did four things: update status, restore stock, sen
 
 ## What Does NOT Belong in a Model
 
-| Does Not Belong | Where It Goes | Why |
-|---|---|---|
-| Sending emails or notifications | [Jobs](/books/clean-code-in-laravel/jobs) or Listeners | Side effect, not data |
-| Generating PDFs or exports | [Actions](/books/clean-code-in-laravel/actions) or [Services](/books/clean-code-in-laravel/organizing-your-application) | Business operation |
-| Complex calculations | [Services](/books/clean-code-in-laravel/organizing-your-application) | Reusable logic with dependencies |
-| Authorization checks | [Policies](https://laravel.com/docs/authorization#creating-policies) | Separate concern |
-| API response formatting | [API Resources](https://laravel.com/docs/eloquent-resources) | Presentation layer |
-| Multi-step business logic | [Actions](/books/clean-code-in-laravel/actions) | Orchestration |
-| HTTP or API calls | [Services](/books/clean-code-in-laravel/organizing-your-application) or [Jobs](/books/clean-code-in-laravel/jobs) | External dependency |
-| View formatting (`toHtml`, `toLabel`) | [View Models](/books/clean-code-in-laravel/view-models) or Blade components | Presentation layer |
+- **Sending emails or notifications** — move to [Jobs](/books/clean-code-in-laravel/jobs) or Listeners. These are side effects, not data.
+- **Generating PDFs or exports** — move to [Actions](/books/clean-code-in-laravel/actions) or [Services](/books/clean-code-in-laravel/organizing-your-application). These are business operations.
+- **Complex calculations** — move to [Services](/books/clean-code-in-laravel/organizing-your-application). Reusable logic with dependencies does not belong on the model.
+- **Authorization checks** — move to [Policies](https://laravel.com/docs/authorization#creating-policies). Authorization is a separate concern.
+- **API response formatting** — move to [API Resources](https://laravel.com/docs/eloquent-resources). This is presentation layer logic.
+- **Multi-step business logic** — move to [Actions](/books/clean-code-in-laravel/actions). Orchestration does not belong on a model.
+- **HTTP or API calls** — move to [Services](/books/clean-code-in-laravel/organizing-your-application) or [Jobs](/books/clean-code-in-laravel/jobs). External dependencies should be explicit.
+- **View formatting** (`toHtml`, `toLabel`) — move to [View Models](/books/clean-code-in-laravel/view-models) or Blade components. Presentation belongs in the presentation layer.
 
 For a domain-oriented approach to keeping models lean — including custom query builders, custom collections, and event-driven models organized by domain — see [Eloquent Without the Bloat](/books/thinking-in-domains-in-laravel/eloquent-without-the-bloat) in *Thinking in Domains in Laravel*.
 

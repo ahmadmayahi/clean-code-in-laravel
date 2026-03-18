@@ -199,13 +199,9 @@ A Gate is a standalone closure. It lives in your `AppServiceProvider` and checks
 
 A Policy is a class organized around a specific model. It groups all authorization logic for that model — viewing, creating, updating, deleting — into one place. "Can this user update *this* post?" "Can this user delete *this* order?" These are Policy territory.
 
-| | Gate | Policy |
-|---|---|---|
-| **Structure** | Closure in `AppServiceProvider` | Dedicated class in `app/Policies/` |
-| **Scope** | Action-centric — standalone operations | Model-centric — CRUD on a specific model |
-| **Discovery** | Must be defined manually | Auto-discovered by naming convention |
-| **Scales to** | A handful of checks | Unlimited — one class per model |
-| **Best for** | Dashboard access, feature flags, admin overrides | Model ownership, CRUD permissions, resource access |
+A **Gate** is a closure defined in `AppServiceProvider`. It is action-centric — standalone operations like dashboard access, feature flags, or admin overrides. Gates must be defined manually and work best for a handful of checks.
+
+A **Policy** is a dedicated class in `app/Policies/`. It is model-centric — CRUD on a specific model like ownership checks or resource access. Policies are auto-discovered by naming convention and scale to unlimited models, one class each.
 
 ### Use Policies as Your Default
 
@@ -780,13 +776,9 @@ Schedule::command('sanctum:prune-expired --hours=24')->daily();
 
 Sanctum is not a stripped-down Passport. They serve different needs:
 
-| | Sanctum | Passport |
-|---|---|---|
-| **Use case** | First-party SPAs, mobile apps, simple APIs | Third-party OAuth2 integrations |
-| **Auth method** | API tokens + cookie-based sessions | Full OAuth2 with authorization codes, client credentials |
-| **Complexity** | Minimal — one migration, one trait | Significant — encryption keys, OAuth clients, grant types |
-| **Token scoping** | Simple string abilities | Full OAuth2 scopes |
-| **When to choose** | You control both the client and the API | External developers need to authorize against your API |
+**Sanctum** is for first-party SPAs, mobile apps, and simple APIs. It uses API tokens and cookie-based sessions, requires minimal setup (one migration, one trait), and scopes tokens with simple string abilities. Choose it when you control both the client and the API.
+
+**Passport** is for third-party OAuth2 integrations. It provides full OAuth2 with authorization codes and client credentials, requires significant setup (encryption keys, OAuth clients, grant types), and uses full OAuth2 scopes. Choose it when external developers need to authorize against your API.
 
 If you are building an API consumed by your own frontend or mobile app, use Sanctum. If you are building an OAuth2 provider (like GitHub or Google), use Passport.
 

@@ -572,15 +572,13 @@ The class-per-state approach earns its keep in two specific scenarios: when tran
 
 Choosing between strings, enums, and the State Pattern depends on the complexity of your status management:
 
-| Scenario                       | Recommended Approach                  |
-| ------------------------------ | ------------------------------------- |
-| Simple flag (active/inactive)  | Boolean column                        |
-| Status with no behavior        | Enum                                  |
-| Status with labels and colors  | Enum with methods                     |
-| Status with transition rules   | Enum with `canTransitionTo()`         |
-| Status-specific behavior       | Enum with methods                     |
-| Transitions with side effects  | State Pattern with Transition classes |
-| Need parameter type narrowing  | State Pattern with classes            |
+- **Simple flag** (active/inactive) — use a boolean column
+- **Status with no behavior** — use an enum
+- **Status with labels and colors** — use an enum with methods
+- **Status with transition rules** — use an enum with `canTransitionTo()`
+- **Status-specific behavior** — use an enum with methods
+- **Transitions with side effects** — use the State Pattern with Transition classes
+- **Need parameter type narrowing** — use the State Pattern with classes
 
 The general rule: start with an enum. Most status fields never outgrow it. An enum with `canTransitionTo()`, behavior methods, and a `transitionTo()` that throws on invalid transitions covers the vast majority of real-world state management needs — in a single file, with no dependencies.
 

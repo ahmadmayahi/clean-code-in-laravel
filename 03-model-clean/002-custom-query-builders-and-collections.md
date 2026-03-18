@@ -133,15 +133,9 @@ Both approaches achieve the same result. The `#[UseEloquentBuilder]` attribute i
 
 ## Why Custom Query Builders Beat Scopes
 
-| Aspect | Scopes | Custom Query Builder |
-|---|---|---|
-| Location | Inside the model | Separate class |
-| IDE support | Limited (`__call` magic) | Full autocompletion |
-| Static analysis | Weak | Strong (typed return) |
-| Model cleanliness | Clutters the model | Keeps model focused |
-| Reusability | Per-model only | Can share via traits or inheritance |
-| Testability | Test through model | Test independently |
-| Method prefix | Requires `scope` prefix | No prefix — regular methods |
+**Scopes** live inside the model, rely on `__call` magic (limited IDE support and weak static analysis), clutter the model as they accumulate, are per-model only, must be tested through the model, and require the `scope` prefix.
+
+**Custom Query Builders** live in a separate class, provide full IDE autocompletion and strong static analysis (typed returns), keep the model focused on data, can share logic via traits or inheritance, are independently testable, and use regular methods with no prefix.
 
 The difference becomes dramatic as your application grows. A model with thirty scopes is painful to navigate — you scroll past walls of query logic to find a relationship or a cast. A Custom Query Builder with thirty methods is a well-organized query catalog that lives in its own file, with its own tests, and its own reason to change.
 

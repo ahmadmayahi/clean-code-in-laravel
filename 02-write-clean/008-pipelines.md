@@ -413,11 +413,11 @@ Pipelines are not a replacement for [Actions](/books/clean-code-in-laravel/actio
 
 Pipelines, HTTP middleware, and Job chains all pass work through a series of steps. They differ in *what* they process and *when* they run:
 
-| Pattern | Processes | Execution | Stops On |
-|---|---|---|---|
-| Pipeline | Any data (DTO, query builder, etc.) | Synchronous, within a request | Exception |
-| HTTP Middleware | HTTP request/response | Synchronous, per request | Exception or early response |
-| Job Chain | Background tasks | Asynchronous, via queue workers | Job failure |
+A **Pipeline** processes any data (DTOs, query builders, etc.) synchronously within a request. It stops on exception.
+
+**HTTP Middleware** processes the HTTP request/response synchronously, per request. It stops on exception or early response.
+
+A **Job Chain** processes background tasks asynchronously via queue workers. It stops on Job failure.
 
 HTTP [middleware](https://laravel.com/docs/middleware) handles cross-cutting HTTP concerns — authentication, CORS, [rate limiting](https://laravel.com/docs/rate-limiting). You do not use middleware for business logic. Pipelines handle multi-step business operations synchronously. [Job chains](https://laravel.com/docs/queues#job-chaining) handle multi-step background work asynchronously.
 
@@ -446,12 +446,9 @@ $slug = $request->input('title')
 
 The pipe operator is great for simple, linear data transformations. But it differs from Laravel's `Pipeline` in important ways:
 
-| | PHP 8.5 `\|>` | Laravel `Pipeline` |
-|---|---|---|
-| **Type** | Language operator | Userland class |
-| **Callables** | Single-argument functions only | Class-based steps with `$next` closure |
-| **DI** | No — plain functions | Yes — steps resolved from the container |
-| **Use case** | Linear data transformations | Multi-step business logic with branching, middleware-style chains |
+**PHP 8.5's `|>`** is a language operator that accepts single-argument functions only, has no dependency injection, and is best for linear data transformations.
+
+**Laravel's `Pipeline`** is a userland class that uses class-based steps with a `$next` closure, resolves steps from the container (full DI), and handles multi-step business logic with branching and middleware-style chains.
 
 The pipe operator replaces nested function calls like `strlen(strtolower(trim($input)))` with a readable left-to-right chain. But it does not support the middleware pattern where each step decides whether to call `$next`, it cannot inject dependencies into steps, and each callable must accept exactly one argument.
 

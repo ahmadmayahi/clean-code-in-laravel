@@ -358,14 +358,11 @@ The naming conventions from the [Naming Conventions](/books/clean-code-in-larave
 
 ### Concerns vs. Support Traits
 
-Not all traits are Concerns. The difference is scope:
+Not all traits are Concerns. The difference is scope.
 
-| Type | Location | Purpose | Example |
-| --- | --- | --- | --- |
-| Concern | `app/Models/Concerns/` | Behavior for a specific layer (models, controllers) | `HasSubscription`, `Searchable` |
-| Support Trait | `app/Support/Traits/` | Cross-cutting behavior used anywhere | `HasUuid`, `Sluggable` |
+A **Concern** lives in `app/Models/Concerns/` and contains behavior tied to a specific layer — models, controllers. Think `HasSubscription` or `Searchable`. A `HasSubscription` trait only makes sense on a model — it defines a relationship and business methods.
 
-A `HasSubscription` trait only makes sense on a model - it defines a relationship and business methods. That is a Concern. A `HasUuid` trait could be used on any model - it is generic infrastructure. That belongs in Support.
+A **Support Trait** lives in `app/Support/Traits/` and contains cross-cutting behavior that could be used anywhere. Think `HasUuid` or `Sluggable`. A `HasUuid` trait could be used on any model — it is generic infrastructure.
 
 If you are unsure, ask: "Does this trait contain business logic specific to one layer?" If yes, it is a Concern. If no, it is a Support trait.
 
@@ -506,14 +503,12 @@ Custom [validation rules](https://laravel.com/docs/validation#custom-validation-
 
 The Support folder is not a dumping ground. These things do not belong there:
 
-| Does Not Belong       | Where It Goes                                                         |
-| --------------------- | --------------------------------------------------------------------- |
-| Business logic        | [Actions](/books/clean-code-in-laravel/actions)                 |
-| API wrappers          | Services                                                              |
-| Models                | `Models`                                                              |
-| Model-specific traits | `Models/Concerns`                                                     |
-| Validation rules      | `app/Rules/` (use `php artisan make:rule`)                            |
-| Domain-specific enums | With their domain (or `Enums/`)                                       |
+- **Business logic** belongs in [Actions](/books/clean-code-in-laravel/actions)
+- **API wrappers** belong in Services
+- **Models** belong in `Models`
+- **Model-specific traits** belong in `Models/Concerns`
+- **Validation rules** belong in `app/Rules/` (use `php artisan make:rule`)
+- **Domain-specific enums** belong with their domain (or `Enums/`)
 
 The test is simple: if it contains business rules or domain knowledge, it does not belong in Support. Support is for infrastructure - the plumbing that everything else is built on.
 

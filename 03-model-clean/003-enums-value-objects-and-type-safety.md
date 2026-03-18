@@ -695,11 +695,9 @@ For a deeper look at when enums are enough and when to upgrade to the state patt
 
 ## When to Use Each
 
-| Tool | Use When | Example |
-|---|---|---|
-| Enum | Fixed set of values with no transition rules | `Currency`, `PaymentMethod`, `UserRole` |
-| Value Object | Immutable concept defined by its attributes | `Money`, `Address`, `DateRange` |
-| State Pattern | Entity with lifecycle transitions and side effects | `OrderStatus`, `SubscriptionStatus`, `InvoiceStatus` |
+- **Enum** — use for a fixed set of values with no transition rules (`Currency`, `PaymentMethod`, `UserRole`)
+- **Value Object** — use for an immutable concept defined by its attributes (`Money`, `Address`, `DateRange`)
+- **State Pattern** — use for an entity with lifecycle transitions and side effects (`OrderStatus`, `SubscriptionStatus`, `InvoiceStatus`)
 
 ## The Type Safety Checklist
 

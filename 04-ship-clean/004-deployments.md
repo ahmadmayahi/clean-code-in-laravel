@@ -498,18 +498,9 @@ Cloud is the right choice when:
 
 Both are built by the Laravel team. Both deploy Laravel applications. They serve different needs:
 
-| | Forge | Cloud |
-|---|---|---|
-| **What you manage** | Servers (with Forge's help) | Nothing — Cloud is the server |
-| **SSH access** | Full root access | No SSH to infrastructure |
-| **Server provider** | You choose (DigitalOcean, Hetzner, AWS, etc.) | Cloud IS the provider |
-| **Scaling** | Manual — resize VPS or add servers | Automatic — horizontal auto-scaling |
-| **Pricing model** | Fixed — Forge fee + server cost | Usage-based — pay for what you use |
-| **Queue workers** | You configure Supervisor | Automatically managed |
-| **Databases** | You manage (on server or external) | One-click managed databases |
-| **Non-Laravel apps** | Supported (any PHP, Node.js, etc.) | Laravel only |
-| **Multiple sites per server** | Yes | No — each app gets its own environment |
-| **Ideal for** | Agencies, predictable workloads, full control | Startups, variable traffic, no-ops teams |
+**Forge** gives you full control. You manage servers (with Forge's help), get full root SSH access, and choose your provider (DigitalOcean, Hetzner, AWS, etc.). Scaling is manual — resize the VPS or add servers. Pricing is fixed: Forge fee plus server cost. You configure queue workers with Supervisor and manage databases yourself (on the server or external). Forge supports any PHP or Node.js app, allows multiple sites per server, and is ideal for agencies, predictable workloads, and teams that want full control.
+
+**Cloud** manages everything for you. There is no SSH access and no infrastructure to think about — Cloud is the provider. Scaling is automatic with horizontal auto-scaling, and pricing is usage-based. Queue workers and databases are managed with one click. Cloud is Laravel-only, each app gets its own environment, and it is ideal for startups, variable traffic, and no-ops teams.
 
 If you want control and predictability, use Forge. If you want simplicity and auto-scaling, use Cloud. Both are excellent — the choice depends on your team, your traffic patterns, and how much infrastructure you want to think about.
 
